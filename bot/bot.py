@@ -52,6 +52,11 @@ class Class_bot(commands.Bot):
                 await self.tree.sync()
                 self._synced = True
 
+            await self.change_presence(
+                status=discord.Status.online,
+                activity=discord.Game("Verification System")
+            )
+
             print(f"[SETUP] COMPLETE - Bot Online: {self.user}")
 
         except Exception as e:
