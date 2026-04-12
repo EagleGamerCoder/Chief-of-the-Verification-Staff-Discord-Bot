@@ -3,6 +3,7 @@ Current Version: V 0.3
 
 Made using: Python 3.14.3 
 
+---------------
 
 This file is a discord bot for the Calderian Army discord servers.
 
