@@ -60,10 +60,14 @@ async def main():
 
     print(f"[SETUP] Starting bot...")
 
-    await asyncio.gather(
-        webserver.start_webserver(),
-        bot.start(discord_token)
-    )
+    try:
+        await asyncio.gather(
+            webserver.start_webserver(),
+            bot.start(discord_token)
+        )
+    except Exception as e:
+        print(f"[FATAL] Bot crashed on setup canceling... Error : {e}")
+        return
     
 
 # ------------------------------------------------------------ MAIN ------------------------------------------------------------
@@ -71,4 +75,4 @@ async def main():
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()

@@ -14,7 +14,6 @@ import asyncio
 # Modules
 import db
 
-
 from utils.safety import safety
 from utils.general_funcs import generate_code_six
 from utils.logging import log_error
