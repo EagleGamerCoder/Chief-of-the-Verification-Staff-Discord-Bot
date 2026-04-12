@@ -1,7 +1,5 @@
 # Chief-of-the-Verification-Staff-Discord-Bot
 
----------------
-
 Current Version: V 0.3 
 
 Made using: Python 3.14.3 
