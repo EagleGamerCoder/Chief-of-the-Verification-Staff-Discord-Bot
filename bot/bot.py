@@ -26,8 +26,11 @@ class Class_bot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.members = True
+        intents.message_content = True
+        intents.presences = True
 
         super().__init__(command_prefix='/', intents=intents)
+        
         self._ready_done = False
         self._synced = False
 
@@ -56,6 +59,10 @@ class Class_bot(commands.Bot):
                 status=discord.Status.online,
                 activity=discord.Game("Verification System")
             )
+
+            print("GUILDS CONNECTED:", len(self.guilds))
+            for g in self.guilds:
+                print("CONNECTED TO:", g.name, g.id)    
 
             print(f"[SETUP] COMPLETE - Bot Online: {self.user}")
 
