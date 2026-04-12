@@ -1,7 +1,19 @@
-# Unfinished - Still unfinished
+'''
 
+info
+
+'''
+
+# ------------------------------------------------------------ IMPORTS ------------------------------------------------------------
+
+# Standard Imports
 import asyncio
 import time
+
+# Modules
+
+
+# ------------------------------------------------------------ CLASSES ------------------------------------------------------------
 
 class SafetyManager:
     def __init__(self):
@@ -25,5 +37,6 @@ class SafetyManager:
     def get_cached_roblox(self, username: str):
         return self.roblox_cache.get(username.lower())
 
+# ------------------------------------------------------------ MAIN ------------------------------------------------------------
 
 safety = SafetyManager()
