@@ -62,6 +62,9 @@ class Class_bot(commands.Bot):
             for g in self.guilds:
                 print("CONNECTED TO:", g.name, g.id)    
 
+            print("BOT ID:", self.user.id)
+            print("BOT NAME:", self.user)
+
             print(f"[SETUP] COMPLETE - Bot Online: {self.user}")
 
         except Exception as e:
