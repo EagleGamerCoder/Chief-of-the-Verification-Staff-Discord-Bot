@@ -56,15 +56,16 @@ async def main():
 
     print(f"[SETUP] Created bot!")
 
+    # ---------- WEBSERVER SETUP ----------
+
+    asyncio.create_task(webserver.start_webserver())
+
     # ---------- Bot startup ----------
 
     print(f"[SETUP] Starting bot...")
 
     try:
-        await asyncio.gather(
-            webserver.start_webserver(),
-            bot.start(discord_token)
-        )
+        await bot.start(discord_token)
     except Exception as e:
         print(f"[FATAL] Bot crashed on setup canceling... Error : {e}")
         return
