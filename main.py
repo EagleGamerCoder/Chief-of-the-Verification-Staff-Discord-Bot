@@ -1,6 +1,8 @@
 '''
 
-Chief-Of-The-Verification-Staff
+main.py
+
+Chief-Of-The-Verification-Staff 
 
 A Discord Bot that creates a built-in embed to verify, update users roles and present server rules in the Calderian Army Discord Servers
 

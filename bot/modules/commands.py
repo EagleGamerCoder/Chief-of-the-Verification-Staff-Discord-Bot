@@ -1,6 +1,6 @@
 '''
 
-Info about module
+info
 
 '''
 
@@ -12,7 +12,6 @@ import discord
 from discord import app_commands
 
 # Modules
-import main
 
 # ------------------------------------------------------------ VARIABLES ------------------------------------------------------------
 

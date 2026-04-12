@@ -98,6 +98,8 @@ class StartVerificationButton(discord.ui.Button):
         except Exception as e:
             await log_error(interaction, "StartVerificationButton", 2, e)
 
+
+
 class CompleteVerificationButton(discord.ui.Button):
     def __init__(self):
         super().__init__(

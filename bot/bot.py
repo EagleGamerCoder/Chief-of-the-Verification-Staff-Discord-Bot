@@ -58,12 +58,12 @@ class Class_bot(commands.Bot):
                 activity=discord.Game("Verification System")
             )
 
-            print("GUILDS CONNECTED:", len(self.guilds))
+            print(f"[SETUP] Guilds connected: :", len(self.guilds))
             for g in self.guilds:
-                print("CONNECTED TO:", g.name, g.id)    
+                print(f"[SETUP] Connected to: ", g.name, g.id)    
 
-            print("BOT ID:", self.user.id)
-            print("BOT NAME:", self.user)
+            print(f"[SETUP] Bot id: ", self.user.id)
+            print(f"[SETUP] Bot name: ", self.user)
 
             print(f"[SETUP] COMPLETE - Bot Online: {self.user}")
 

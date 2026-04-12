@@ -1,6 +1,6 @@
 '''
 
-Info about module
+info
 
 '''
 
@@ -22,6 +22,8 @@ def create_verification_embed():
         "> If you are already Verified click 'Update' to update your server roles.",
         color=discord.Color(0xffd739)
     )
+
+
 
 def create_server_rules_embed():
     return discord.Embed(

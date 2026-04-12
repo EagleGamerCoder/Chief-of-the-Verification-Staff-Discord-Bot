@@ -16,7 +16,7 @@ Controls and holds all functions of the sql database
 .get_server_rules_ids(guild_id)
 .save_accepted_rules(guild_id, user_id)
 .has_accepted_rules(guild_id, user_id)
-
+ 
 '''
 
 # ------------------------------------------------------------ IMPORTS ------------------------------------------------------------

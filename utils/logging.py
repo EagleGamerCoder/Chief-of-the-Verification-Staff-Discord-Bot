@@ -1,6 +1,6 @@
 '''
 
-Info about module
+info
 
 '''
 

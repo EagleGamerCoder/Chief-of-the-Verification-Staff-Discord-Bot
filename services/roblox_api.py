@@ -15,6 +15,7 @@ from http_services import http_services
 # ------------------------------------------------------------ VARIABLES ------------------------------------------------------------
 
 http_session = None
+TIME_OUT = 10
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
@@ -24,7 +25,7 @@ async def get_roblox_id(username : str) -> int | None:
     async with http_services.http_session.post(
         "https://users.roblox.com/v1/usernames/users",
         json={"usernames" : [username]}, 
-        timeout=10
+        timeout=TIME_OUT
     ) as response:
         try:
             data = await response.json()
@@ -39,7 +40,7 @@ async def get_roblox_id(username : str) -> int | None:
 # Get the profile description of a user using their roblox id
 async def get_profile_description(user_id : int):
     await http_services.ensure_http()
-    async with http_services.http_session.get(f"https://users.roblox.com/v1/users/{user_id}", timeout=10) as response:
+    async with http_services.http_session.get(f"https://users.roblox.com/v1/users/{user_id}", timeout=TIME_OUT) as response:
         try:
             data = await response.json()
         except Exception:
@@ -51,7 +52,7 @@ async def get_profile_description(user_id : int):
 # Get the group rank of a user using their roblox user id and group id
 async def get_group_rank(user_id : int, group_id : int) -> int:
     await http_services.ensure_http()
-    async with http_services.http_session.get(f"https://groups.roblox.com/v2/users/{user_id}/groups/roles", timeout=10) as response:
+    async with http_services.http_session.get(f"https://groups.roblox.com/v2/users/{user_id}/groups/roles", timeout=TIME_OUT) as response:
         try:
             data = await response.json()
         except Exception:
@@ -66,7 +67,7 @@ async def get_group_rank(user_id : int, group_id : int) -> int:
 
 async def get_roblox_username(roblox_user_id : int) -> str:
     await http_services.ensure_http()
-    async with http_services.http_session.get(f"https://users.roblox.com/v1/users/{roblox_user_id}", timeout=10) as response:
+    async with http_services.http_session.get(f"https://users.roblox.com/v1/users/{roblox_user_id}", timeout=TIME_OUT) as response:
         try:
             data = await response.json()
         except Exception:
@@ -77,7 +78,7 @@ async def get_roblox_username(roblox_user_id : int) -> str:
 
 async def fetch_group_data(group_id):
     await http_services.ensure_http()
-    async with http_services.http_session.get(f"https://groups.roblox.com/v1/groups/{group_id}", timeout=10) as response:
+    async with http_services.http_session.get(f"https://groups.roblox.com/v1/groups/{group_id}", timeout=TIME_OUT) as response:
         try:
             data = await response.json()
         except Exception:
