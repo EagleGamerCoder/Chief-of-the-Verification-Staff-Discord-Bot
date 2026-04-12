@@ -9,6 +9,7 @@ info
 # Standard Imports
 import discord
 import importlib
+import aiohttp
 import os
 
 from discord.ext import commands
@@ -27,6 +28,8 @@ class Class_bot(commands.Bot):
         intents.members = True
 
         super().__init__(command_prefix='/', intents=intents)
+        self._ready_done = False
+        self._synced = False
 
     async def setup_hook(self):
         # Start HTTP session
@@ -40,14 +43,22 @@ class Class_bot(commands.Bot):
 
     async def on_ready(self):
         try:
-            await self.tree.sync()
+            if self._ready_done:
+                return
+
+            self._ready_done = True
+
+            if not self._synced:
+                await self.tree.sync()
+                self._synced = True
+
             print(f"[SETUP] COMPLETE - Bot Online: {self.user}")
 
         except Exception as e:
             log_error(None, "Class_bot", 2, e)
 
     async def close(self):
-        await http_services.close()
+        http_services.close()
         await close_webserver()
         await super().close()
 

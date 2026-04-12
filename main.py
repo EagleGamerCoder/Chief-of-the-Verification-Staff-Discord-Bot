@@ -2,8 +2,6 @@
 
 Chief-Of-The-Verification-Staff
 
-V 0.2
-
 A Discord Bot that creates a built-in embed to verify, update users roles and present server rules in the Calderian Army Discord Servers
 
 '''
@@ -16,6 +14,7 @@ import asyncio
 # Modules
 import db
 import webserver
+import logging
 
 from config import discord_token
 from bot.bot import Class_bot
@@ -57,23 +56,19 @@ async def main():
 
     print(f"[SETUP] Created bot!")
 
-    # ---------- Webserver handling ----------
-    
-    print(f"[SETUP] Starting webserver...")
-    web_task = asyncio.create_task(webserver.start_webserver())
-
-    web_task.add_done_callback(webserver.handle_web_result)
-    print(f"[SETUP] Started webserver!")
-
     # ---------- Bot startup ----------
 
     print(f"[SETUP] Starting bot...")
-    try:
-        await bot.start(discord_token)
-    finally:
-        await bot.close()
+
+    await asyncio.gather(
+        webserver.start_webserver(),
+        bot.start(discord_token)
+    )
+    
 
 # ------------------------------------------------------------ MAIN ------------------------------------------------------------
+
+logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
     asyncio.run(main())

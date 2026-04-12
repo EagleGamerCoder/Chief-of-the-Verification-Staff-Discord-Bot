@@ -20,11 +20,17 @@ class Services:
 
     async def ensure_http(self):
         if self.http_session is None or self.http_session.closed:
-            self.http_session = aiohttp.ClientSession()
+
+            timeout = aiohttp.ClientTimeout(total=30)
+
+            self.http_session = aiohttp.ClientSession(
+                timeout=timeout
+            )
 
     async def close(self):
         if self.http_session and not self.http_session.closed:
             await self.http_session.close()
+            self.http_session = None
 
 # ------------------------------------------------------------ MAIN ------------------------------------------------------------
 
