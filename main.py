@@ -58,7 +58,9 @@ async def main():
 
     # ---------- WEBSERVER SETUP ----------
 
+    print(f"[SETUP] Starting up webserver...")
     asyncio.create_task(webserver.start_webserver())
+    print(f"[SETUP] Started webserver!")
 
     # ---------- Bot startup ----------
 
