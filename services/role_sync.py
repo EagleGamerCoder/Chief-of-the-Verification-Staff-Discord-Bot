@@ -1,6 +1,21 @@
 '''
 
-info 
+Module: role_sync.py
+Author: EagleGamerCoder
+Most recent update version: V 0.4.2
+Description:
+    Manages adding roblox group roles and nicknames to 
+    discord.
+
+Usage:
+    verify_view.py
+
+Components:
+    Functions:
+        _
+
+    Classes:
+        _
 
 '''
 
@@ -16,10 +31,7 @@ import db
 from config import main_guild_id
 from utils.logging import log_error
 from http_services  import http_services
-from services.roblox_api import (
-    get_roblox_username,
-    fetch_group_data,
-)
+from services import roblox_api
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
@@ -67,7 +79,7 @@ async def FetchRobloxGroupRole(discord_user_id: int, group_id):
         return None
 
 
-
+'''
 async def set_prefix_nickname(member, role_name: str):
     try: 
         match = re.match(r'^\[(.*?)\]', role_name)
@@ -100,9 +112,9 @@ async def set_prefix_nickname(member, role_name: str):
     except Exception as e:
         await log_error(None, "set_prefix_nickname", 3, e)
         return
+'''
 
-
-
+'''
 async def get_group_name_async(group_id):
     try:
         data = await fetch_group_data(group_id)
@@ -112,9 +124,9 @@ async def get_group_name_async(group_id):
     if data:
         return data.get("name")
     return None
+'''
 
-
-
+'''
 async def get_roblox_multi_group_role(member : discord.member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int):
 
     try:
@@ -146,9 +158,37 @@ async def get_roblox_multi_group_role(member : discord.member, interaction : dis
             break
     
     return group_role, subgroup_name
+'''
 
 
+async def get_category_role():
+    pass
 
+
+async def add_roles_to_user(*args):
+    pass
+
+
+async def sync_discord_and_roblox_roles(member: discord.member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int) -> int | None:
+    
+    # Bot permission checks
+    
+    bot_member = interaction.guild.me
+
+    if not bot_member.guild_permissions.manage_roles:
+        await log_error(interaction, "sync_discord_roles", 1, "Missing Manage roles permission")
+        return
+
+    if not bot_member.guild_permissions.manage_nicknames:
+        await log_error(interaction, "sync_discord_roles", 2, "Missing Change nicknames permission")
+        return
+    
+    # Fetch role
+
+    rank = roblox_api.get_group_rank(db.get_roblox_id(member.id)[0], group_id)
+    data = roblox_api.get_group_data(group_id)
+
+'''
 async def sync_discord_roles(member: discord.Member, interaction: discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int):
 
     bot_member = interaction.guild.me
@@ -360,3 +400,4 @@ async def sync_discord_roles(member: discord.Member, interaction: discord.Intera
             pass
 
         return 1
+'''

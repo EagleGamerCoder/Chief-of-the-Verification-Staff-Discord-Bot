@@ -1,10 +1,22 @@
 '''
 
-main.py
+Module: main.py
+Author: EagleGamerCoder
+Most recent update version: V 0.4.2
+Description:
+    Primary file. Handles all main setup logic including: 
+    database init, creating bot object, starting webserver,
+    starting bot.
 
-Chief-Of-The-Verification-Staff 
+Usage:
+    _
 
-A Discord Bot that creates a built-in embed to verify, update users roles and present server rules in the Calderian Army Discord Servers
+Components:
+    Functions:
+        main() -> None
+
+    Classes:
+        _
 
 '''
 
@@ -30,7 +42,7 @@ from views.embeds import (
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
-async def main():
+async def main() -> None:
     print("[SETUP] Setup starting...")
 
     # ---------- Init database ----------

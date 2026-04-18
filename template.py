@@ -1,6 +1,20 @@
 '''
 
-info
+Module: _
+Author: _
+Most recent update version: V _
+Description:
+    _
+
+Usage:
+    _
+
+Components:
+    Functions:
+        _
+
+    Classes:
+        _
 
 '''
 

@@ -2,7 +2,7 @@
 
 Module: verify_view.py
 Author: EagleGamerCoder
-Most recent update version: V 0.4.1
+Most recent update version: V 0.4.2
 Description:
     Handles the Discord verification UI system, including
     persistent buttons and a modal used to collect Roblox
@@ -137,21 +137,28 @@ class StartVerificationButton(discord.ui.Button):
 
             ids = db.get_server_rules_ids(interaction.guild.id)
             if ids is None:
+                await interaction.response.send_message(
+                    "Server is not configured.",
+                    ephemeral=True
+                )
                 log_error(interaction, "StartVerificationButton", 1, "Guild not configured")
                 return
 
-            # DB check
             if not db.has_accepted_rules(interaction.guild.id, interaction.user.id):
                 await interaction.response.send_message(
-                    "You must accept the rules first by reacting with '✅' in the rules channel.",
+                    "You must accept the rules first by reacting with '✅'.",
                     ephemeral=True
                 )
                 return
 
-            # MODAL
             await interaction.response.send_modal(UsernameModal())
 
         except Exception as e:
+            if not interaction.response.is_done():
+                await interaction.response.send_message(
+                    "An unexpected error occurred.",
+                    ephemeral=True
+                )
             await log_error(interaction, "StartVerificationButton", 2, e)
 
 
