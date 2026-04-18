@@ -50,11 +50,7 @@ import db
 from utils.safety import safety
 from utils.general_funcs import generate_code_six
 from utils.logging import log_error
-from services.role_sync import sync_discord_roles
-from services.roblox_api import (
-    get_roblox_id,
-    get_profile_description,
-)
+from services import *
 
 # ------------------------------------------------------------ VARIABLES ------------------------------------------------------------
 
@@ -92,7 +88,7 @@ class UsernameModal(discord.ui.Modal, title="Enter Roblox Username"):
         roblox_id = safety.get_cached_roblox(username)
 
         if roblox_id is None:
-            roblox_id = await get_roblox_id(username)
+            #roblox_id = await get_roblox_id(username)
             safety.cache_roblox(username, roblox_id)
 
         if roblox_id is None:
@@ -199,16 +195,17 @@ class CompleteVerificationButton(discord.ui.Button):
             if not config:
                 log_error(interaction, "CompleteVerificationButton", 1, "Guild not configured")
                 return
-            
+            '''
             description = await get_profile_description(roblox_id)
             if not description or code not in description:
                 await interaction.followup.send("❌ Code not in bio.", ephemeral=True)
                 return
             
             await asyncio.sleep(0.5)
-
+            '''
             try:
                 async with safety.role_lock:
+                    '''
                     result = await sync_discord_roles(
                         interaction.user, 
                         interaction, 
@@ -217,8 +214,9 @@ class CompleteVerificationButton(discord.ui.Button):
                         int(config["sub_two"]), 
                         int(config["sub_three"]),
                     )
+                    '''
 
-                if result == 1:
+                #if result == 1:
                     role = interaction.guild.get_role(config["role_id"])
                     if role:
                         await interaction.user.add_roles(role) # adds verified role
@@ -227,7 +225,7 @@ class CompleteVerificationButton(discord.ui.Button):
                     db.delete_pending(interaction.user.id)
 
                     await interaction.followup.send("✅ Verified!", ephemeral=True)
-                else:
+                #else:
                     await interaction.followup.send("❌ Verification Failed.", ephemeral=True)
                     return
                 
@@ -272,6 +270,7 @@ class UpdateButton(discord.ui.Button):
             
             try:
                 async with safety.role_lock:
+                    '''
                     result = await sync_discord_roles(
                         interaction.user, 
                         interaction, 
@@ -280,7 +279,7 @@ class UpdateButton(discord.ui.Button):
                         int(config["sub_two"]), 
                         int(config["sub_three"]),
                     )
-
+                    '''
                 if result == 1:
                     return await interaction.followup.send("✅ Roles updated!", ephemeral=True)
                 
