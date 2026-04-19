@@ -25,68 +25,93 @@ Components:
 # ------------------------------------------------------------ IMPORTS ------------------------------------------------------------
 
 # Standard Imports
-
+from __future__ import annotations
+from typing import Any, Optional
+import aiohttp
+import asyncio
 
 # Modules
 from http_services import http_services
-
 # ------------------------------------------------------------ VARIABLES ------------------------------------------------------------
 
-http_session = None
 TIME_OUT = 10
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
 # Get the roblox id of a user using their username
-async def get_roblox_id(rblx_username : str) -> int | None:
+async def get_roblox_id(rblx_username: str) -> Optional[int]:
     await http_services.ensure_http()
-    async with http_services.http_session.post("https://users.roblox.com/v1/usernames/users", json={"usernames" : [rblx_username]}, timeout=TIME_OUT) as response:
-        try:
+    session: aiohttp.ClientSession = http_services.http_session
+
+    try:
+        async with session.post(
+            "https://users.roblox.com/v1/usernames/users",
+            json={"usernames": [rblx_username]},
+            timeout=aiohttp.ClientTimeout(total=TIME_OUT)
+        ) as response:
+            response.raise_for_status()
             data = await response.json()
-        except Exception:
-            return 0
-        if data.get("data"):
-            return int(data["data"][0]["id"])
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+        return None
+
+    items = data.get("data")
+    if items:
+        return int(items[0].get("id"))
     return None
 
 
-
-# Get the profile description of a user using their roblox id
-async def get_roblox_player_data(rblx_user_id : int) -> int | any:
+# Get the profile data of a user using their roblox id
+async def get_roblox_player_data(rblx_user_id: int) -> Optional[dict[str, Any]]:
     await http_services.ensure_http()
-    async with http_services.http_session.get(f"https://users.roblox.com/v1/users/{rblx_user_id}", timeout=TIME_OUT) as response:
-        try:
+    session: aiohttp.ClientSession = http_services.http_session
+
+    try:
+        async with session.get(
+            f"https://users.roblox.com/v1/users/{rblx_user_id}",
+            timeout=aiohttp.ClientTimeout(total=TIME_OUT)
+        ) as response:
+            response.raise_for_status()
             data = await response.json()
-        except Exception:
-            return 0
-        return data
-        
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+        return None
+
+    return data
 
 
 # Get the group rank of a user using their roblox user id and group id
-async def get_roblox_player_group_data(rblx_user_id : int, rblx_group_id : int) -> int | any:
+async def get_roblox_player_group_data(rblx_user_id: int, rblx_group_id: int) -> Optional[dict[str, Any]]:
     await http_services.ensure_http()
-    async with http_services.http_session.get(f"https://groups.roblox.com/v2/users/{rblx_user_id}/groups/roles", timeout=TIME_OUT) as response:
-        try:
+    session: aiohttp.ClientSession = http_services.http_session
+
+    try:
+        async with session.get(
+            f"https://groups.roblox.com/v2/users/{rblx_user_id}/groups/roles",
+            timeout=aiohttp.ClientTimeout(total=TIME_OUT)
+        ) as response:
+            response.raise_for_status()
             data = await response.json()
-        except Exception:
-            return 0
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+        return None
 
-        for group in data.get("data", []):
-            if group["group"]["id"] == rblx_group_id:
-                return group
-    return 0
+    for group in data.get("data", []):
+        if group.get("group", {}).get("id") == rblx_group_id:
+            return group
+    return None
 
 
-
-# Getys the group information of the specified roblox group id
-async def get_roblox_group_info(rblx_group_id : int) -> any:
+# Get the group information of the specified roblox group id
+async def get_roblox_group_info(rblx_group_id: int) -> Optional[dict[str, Any]]:
     await http_services.ensure_http()
-    async with http_services.http_session.get(f"https://groups.roblox.com/v1/groups/{rblx_group_id}", timeout=TIME_OUT) as response:
-        try:
-            data = response.json()
-        except Exception:
-            return 0
-        
-        return data
-    return 0
+    session: aiohttp.ClientSession = http_services.http_session
+
+    try:
+        async with session.get(
+            f"https://groups.roblox.com/v1/groups/{rblx_group_id}",
+            timeout=aiohttp.ClientTimeout(total=TIME_OUT)
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+        return None
+
+    return data

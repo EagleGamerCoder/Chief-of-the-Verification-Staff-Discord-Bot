@@ -112,7 +112,9 @@ async def get_roblox_multi_group_role(member : discord.Member, interaction : dis
 
     try:
         roblox_id = db.get_roblox_id(member.id)
-        group_role = await roblox_api.get_roblox_player_group_data(roblox_id, group_id)['role']
+        group_role = await roblox_api.get_roblox_player_group_data(roblox_id, group_id)
+        if group_role != None:
+            group_role = group_role['role']
         subgroup_name = None
     except Exception as e:
         await log_error(interaction, "get_roblox_multi_group_role", 1, e)

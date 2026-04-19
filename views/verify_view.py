@@ -267,7 +267,7 @@ class CompleteVerificationButton(discord.ui.Button):
                 return
 
             player_data = await roblox_api.get_roblox_player_data(roblox_id)
-            if player_data == 0 or player_data == None:
+            if player_data == None:
                 log_error(interaction, "CompleteVerificationButton", 2, f"Error when getting player data of id: {roblox_id}")
             elif player_data['isBanned'] == True:
                 interaction.followup.send(f"Player of id: {roblox_id} is banned, cannot verify.", ephemeral=True)
