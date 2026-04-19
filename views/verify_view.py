@@ -2,7 +2,7 @@
 
 Module: verify_view.py
 Author: EagleGamerCoder
-Most recent update version: V 0.4.2
+Most recent update version: V 0.5.1
 Description:
     Handles the Discord verification UI system, including
     persistent buttons and a modal used to collect Roblox
@@ -46,19 +46,23 @@ import asyncio
 
 # Modules
 import db
-
 from utils.safety import safety
 from utils.general_funcs import generate_code_six
 from utils.logging import log_error
-from services import *
+from services import (
+    discord_roblox_role_sync,
+    roblox_api,
+)
+from views import embeds
 
 # ------------------------------------------------------------ VARIABLES ------------------------------------------------------------
 
-BUTTON_COOLDOWN = 5 # in seconds
+BUTTON_COOLDOWN = 4 # in seconds
 EXPIRY_TIME = 600 #(10 minutes = 600 seconds)
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
+# Gets the guild config but returns it as a dict
 def get_guild_config(guild_id : int) -> dict | None:
     config = db.get_guild_config(guild_id)
     if not config:
@@ -76,6 +80,68 @@ def get_guild_config(guild_id : int) -> dict | None:
     except Exception:
         return None
 
+
+
+# Gives a resulting output to the user
+async def output_roles(member, interaction, roles : list):
+    new_roles = []
+    for role in roles:
+        if role is type(discord.Role):
+            role = role.name
+        new_roles.append(role)
+
+    await embeds.create_role_output_embed(new_roles)
+
+    try:
+        await member.send(
+            f"You have been ranked in the {interaction.guild.name} Discord Server."
+        )
+    except discord.Forbidden:
+        pass
+
+
+
+# Provides the user with the output information, adds the  verified role and removes temporary database information
+async def ensure_role_sync(interaction, roblox_id, group_id, sub_one, sub_two, sub_three, role_id):
+    # Sync roblox & discord roles
+    try:
+        async with safety.role_lock:
+            
+            result = await discord_roblox_role_sync.sync_discord_and_roblox_roles(
+                interaction.user, 
+                interaction, 
+                int(group_id), 
+                int(sub_one), 
+                int(sub_two), 
+                int(sub_three),
+            )
+            
+
+        if result:
+            role = interaction.guild.get_role(role_id)
+
+            if role:
+                await interaction.user.add_roles(role) # adds verified role
+
+            db.delete_pending(interaction.user.id)
+            db.save_verify(interaction.user.id, roblox_id)  
+            
+            if role is not None:
+                roles_list = result[2] + [role]
+            else:
+                roles_list = result[2]
+
+            output_roles(result[0], result[1], roles_list)
+
+            await interaction.followup.send("✅ Verified!", ephemeral=True)
+
+        else:
+            await interaction.followup.send("❌ Verification Failed.", ephemeral=True)
+            return
+        
+    except Exception as e:
+        await log_error(interaction, "CompleteVerificationButton", 3, e)
+
 # ------------------------------------------------------------ CLASSES ------------------------------------------------------------
 
 # Creates a modal to get a players username and begin the verification process
@@ -88,7 +154,7 @@ class UsernameModal(discord.ui.Modal, title="Enter Roblox Username"):
         roblox_id = safety.get_cached_roblox(username)
 
         if roblox_id is None:
-            #roblox_id = await get_roblox_id(username)
+            roblox_id = await roblox_api.get_roblox_id(username)
             safety.cache_roblox(username, roblox_id)
 
         if roblox_id is None:
@@ -124,6 +190,8 @@ class StartVerificationButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         try:
+            # General checks
+
             if not safety.check_cooldown(interaction.user.id, BUTTON_COOLDOWN):
                 await interaction.response.send_message(
                     f"⏳ Please wait {BUTTON_COOLDOWN} seconds before trying again.",
@@ -133,12 +201,10 @@ class StartVerificationButton(discord.ui.Button):
 
             ids = db.get_server_rules_ids(interaction.guild.id)
             if ids is None:
-                await interaction.response.send_message(
-                    "Server is not configured.",
-                    ephemeral=True
-                )
                 log_error(interaction, "StartVerificationButton", 1, "Guild not configured")
                 return
+
+            # Server rules reaction
 
             if not db.has_accepted_rules(interaction.guild.id, interaction.user.id):
                 await interaction.response.send_message(
@@ -146,6 +212,8 @@ class StartVerificationButton(discord.ui.Button):
                     ephemeral=True
                 )
                 return
+
+            # Send username modal to get username
 
             await interaction.response.send_modal(UsernameModal())
 
@@ -170,6 +238,8 @@ class CompleteVerificationButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         try:
+            # Account and general checks
+
             if not safety.check_cooldown(interaction.user.id, BUTTON_COOLDOWN):
                 await interaction.response.send_message(
                     f"⏳ Please wait {BUTTON_COOLDOWN} seconds before trying again.",
@@ -195,45 +265,36 @@ class CompleteVerificationButton(discord.ui.Button):
             if not config:
                 log_error(interaction, "CompleteVerificationButton", 1, "Guild not configured")
                 return
-            '''
-            description = await get_profile_description(roblox_id)
+
+            player_data = await roblox_api.get_roblox_player_data(roblox_id)
+            if player_data == 0 or player_data == None:
+                log_error(interaction, "CompleteVerificationButton", 2, f"Error when getting player data of id: {roblox_id}")
+            elif player_data['isBanned'] == True:
+                interaction.followup.send(f"Player of id: {roblox_id} is banned, cannot verify.", ephemeral=True)
+            
+            description = player_data['description']
             if not description or code not in description:
                 await interaction.followup.send("❌ Code not in bio.", ephemeral=True)
                 return
             
+            if interaction.user.id == 1434931977571668113:
+                await interaction.followup.send("❌ Eagle, you're such a silly goose, I ain't messing up your roles again...", ephemeral=True)
+                return
+
             await asyncio.sleep(0.5)
-            '''
-            try:
-                async with safety.role_lock:
-                    '''
-                    result = await sync_discord_roles(
-                        interaction.user, 
-                        interaction, 
-                        int(config["group_id"]), 
-                        int(config["sub_one"]), 
-                        int(config["sub_two"]), 
-                        int(config["sub_three"]),
-                    )
-                    '''
-
-                #if result == 1:
-                    role = interaction.guild.get_role(config["role_id"])
-                    if role:
-                        await interaction.user.add_roles(role) # adds verified role
-
-                    db.save_verify(interaction.user.id, roblox_id)  
-                    db.delete_pending(interaction.user.id)
-
-                    await interaction.followup.send("✅ Verified!", ephemeral=True)
-                #else:
-                    await interaction.followup.send("❌ Verification Failed.", ephemeral=True)
-                    return
-                
-            except Exception as e:
-                await log_error(interaction, "CompleteVerificationButton", 2, e)
+            
+            await ensure_role_sync(
+                interaction, 
+                roblox_id, 
+                config['group_id'], 
+                config['sub_one'], 
+                config['sub_two'], 
+                config['sub_three'], 
+                config['role_id']
+            )
 
         except Exception as e:
-            await log_error(interaction, "CompleteVerificationButton", 3, e)
+            await log_error(interaction, "CompleteVerificationButton", 4, e)
         
         
 
@@ -248,6 +309,8 @@ class UpdateButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         try:
+            # General checks
+
             if not safety.check_cooldown(interaction.user.id, BUTTON_COOLDOWN):
                 await interaction.response.send_message(
                     f"⏳ Please wait {BUTTON_COOLDOWN} seconds before trying again.",
@@ -257,7 +320,8 @@ class UpdateButton(discord.ui.Button):
             
             await interaction.response.defer(ephemeral=True)
 
-            if not db.get_roblox_id(interaction.user.id):
+            roblox_id = db.get_roblox_id(interaction.user.id)
+            if not roblox_id or roblox_id is None:
                 await interaction.followup.send("❌ Your account is not verified.", ephemeral=True)
                 return
             
@@ -268,26 +332,15 @@ class UpdateButton(discord.ui.Button):
 
             await asyncio.sleep(0.5)
             
-            try:
-                async with safety.role_lock:
-                    '''
-                    result = await sync_discord_roles(
-                        interaction.user, 
-                        interaction, 
-                        int(config["group_id"]), 
-                        int(config["sub_one"]), 
-                        int(config["sub_two"]), 
-                        int(config["sub_three"]),
-                    )
-                    '''
-                if result == 1:
-                    return await interaction.followup.send("✅ Roles updated!", ephemeral=True)
-                
-                await interaction.followup.send("❌ Roles not updated.", ephemeral=True)
-                
-            except Exception as e:
-                await log_error(interaction, "UpdateButton", 1, e)
-                return
+            await ensure_role_sync(
+                interaction, 
+                roblox_id, 
+                config['group_id'], 
+                config['sub_one'], 
+                config['sub_two'], 
+                config['sub_three'], 
+                config['role_id']
+            )
             
         except Exception as e:
             await log_error(interaction, "UpdateButton", 2, e)

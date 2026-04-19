@@ -175,7 +175,7 @@ def get_roblox_id(discord_id):
     )
     data = c.fetchone()
     conn.close()
-    return data
+    return data[0]
 
 
 

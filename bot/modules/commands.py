@@ -8,7 +8,6 @@ info
 
 # Standard Imports
 import discord
-
 from discord import app_commands
 
 # Modules

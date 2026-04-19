@@ -1,8 +1,8 @@
 '''
 
-Module: role_sync.py
+Module: discord_roblox_role_sync.py
 Author: EagleGamerCoder
-Most recent update version: V 0.4.2
+Most recent update version: V 0.5.1
 Description:
     Manages adding roblox group roles and nicknames to 
     discord.
@@ -12,7 +12,14 @@ Usage:
 
 Components:
     Functions:
-        _
+        remove_leading_bracket(string : str) -> str
+        normalize(name: str) -> str
+        set_prefix_nickname(member, role_name: str)
+        get_roblox_multi_group_role(member : discord.member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int)
+        get_category_role_name(interaction, clean_name, subgroup_name) -> str
+        add_roles_to_user(interaction : discord.Interaction, member : discord.member, *args)
+        remove_roles_to_user(interaction : discord.Interaction, member : discord.member, *args)
+        sync_discord_and_roblox_roles(member: discord.member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int) -> int | None
 
     Classes:
         _
@@ -30,56 +37,41 @@ import re
 import db
 from config import main_guild_id
 from utils.logging import log_error
-from http_services  import http_services
 from services import roblox_api
+
+# ------------------------------------------------------------ VARIABLES ------------------------------------------------------------
+
+# Category role names in the guild
+CATEGORY_ROLE_NAMES = {
+    "ENLISTED": "Enlisted",
+    "OFFICER": "Officer",
+    "CHIEF_OF_STAFF_BOARD": "👑 Chief of Staff Board",
+    "DEVELOPER": "[DEV] Developer",
+}
+
+# Prefix groups (normalized)
+ENLISTED_PREFIX = ("[OR-",)
+OFFICER_PREFIX = ("[OF-",)
+CSB_PREFIXES = ("[CDS", "[VCD", "[SEA", "[CAS", "[VCA", "[ASM")
+DEV_PREFIX = ("[DEV",)
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
+# Removes the leading bracket and all content before it
 def remove_leading_bracket(string : str) -> str:
     return re.sub(r'^\[.*?\]\s*','',string)
 
 
 
-async def FetchRobloxGroupRole(discord_user_id: int, group_id):
-    await http_services.ensure_http()
-    
-    # Fetches the Roblox group role for the specified group ID and interaction
-    data = db.get_roblox_id(discord_user_id)
-    if not data:
-        return None
-
-    roblox_user_id = data[0]
-
-    if not roblox_user_id:
-        return None
-
-    # ---------------- FETCH GROUP DATA ----------------
-    try:
-        membership_url = f"https://groups.roblox.com/v1/users/{roblox_user_id}/groups/roles"
-
-        async with http_services.http_session.get(membership_url, timeout=10) as response:
-
-            if response.status == 404:
-                return None
-
-            data = await response.json()
-
-        # ---------------- FIND TARGET GROUP ----------------
-        for group in data.get("data", []):
-            if group.get("group", {}).get("id") == group_id:
-                return {
-                    "name": group.get("role", {}).get("name", "Unknown"),
-                    "id": group.get("role", {}).get("id", 0)
-                }
-
-        return None  # not in group
-
-    except Exception as e:
-        await log_error(None, "FetchRobloxGroupRole", 1, e)
-        return None
+# normalises a string -> uppercase and without spaces
+def normalize(name: str) -> str:
+    if name is None:
+        return ""
+    return name.strip().upper()
 
 
-'''
+
+# Sets a discord users nickname as their roblox role's prefix
 async def set_prefix_nickname(member, role_name: str):
     try: 
         match = re.match(r'^\[(.*?)\]', role_name)
@@ -94,9 +86,9 @@ async def set_prefix_nickname(member, role_name: str):
                 prefix = ""
 
         try:
-            data = db.get_roblox_id(member.id)
-            if data is not None:
-                rblx_username = await get_roblox_username(data[0])
+            id = db.get_roblox_id(member.id)
+            if id is not None:
+                rblx_username = await roblox_api.get_roblox_player_data(id)
             else:
                 rblx_username = "Unknown"
 
@@ -112,25 +104,15 @@ async def set_prefix_nickname(member, role_name: str):
     except Exception as e:
         await log_error(None, "set_prefix_nickname", 3, e)
         return
-'''
 
-'''
-async def get_group_name_async(group_id):
-    try:
-        data = await fetch_group_data(group_id)
-    except Exception:
-        return None
-    
-    if data:
-        return data.get("name")
-    return None
-'''
 
-'''
-async def get_roblox_multi_group_role(member : discord.member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int):
+
+# returns the group role and sub group name for the specified discord member and guild info
+async def get_roblox_multi_group_role(member : discord.Member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int):
 
     try:
-        group_role = await FetchRobloxGroupRole(member.id, group_id)
+        roblox_id = db.get_roblox_id(member.id)
+        group_role = await roblox_api.get_roblox_player_group_data(roblox_id, group_id)['role']
         subgroup_name = None
     except Exception as e:
         await log_error(interaction, "get_roblox_multi_group_role", 1, e)
@@ -141,7 +123,7 @@ async def get_roblox_multi_group_role(member : discord.member, interaction : dis
     if not sub_ids:
         return group_role, None
 
-    fetch_tasks = [get_group_name_async(sid) for sid in sub_ids]
+    fetch_tasks = [roblox_api.get_roblox_group_info(sid).get("name") for sid in sub_ids]
     names = await asyncio.gather(*fetch_tasks, return_exceptions=True)
 
     # Normalize and compare; only re-resolve role if a match is found
@@ -151,25 +133,64 @@ async def get_roblox_multi_group_role(member : discord.member, interaction : dis
         normalized = remove_leading_bracket(name)
         if group_role and normalized == group_role.get("name"):
             try:
-                group_role = await FetchRobloxGroupRole(member.id, sid)
+                group_role = await roblox_api.get_roblox_player_group_data(member.id, sid)
                 subgroup_name = normalized
             except Exception as e:
                 await log_error(interaction, "get_roblox_multi_group_role", 2, f"Error fetching subgroup role for {sid}: {e}")
             break
     
     return group_role, subgroup_name
-'''
 
 
-async def get_category_role():
-    pass
+
+# Determins the category role for the new roblox role to be added
+async def get_category_role_name(interaction, clean_name, subgroup_name) -> str:    
+    new_category_name = None
+    if subgroup_name:
+        new_category_name = subgroup_name
+    else:
+        if interaction.guild.id == main_guild_id or any(clean_name.startswith(p) for p in CSB_PREFIXES):
+            if any(clean_name.startswith(p) for p in ENLISTED_PREFIX):
+                new_category_name = CATEGORY_ROLE_NAMES["ENLISTED"]
+            elif any(clean_name.startswith(p) for p in OFFICER_PREFIX):
+                new_category_name = CATEGORY_ROLE_NAMES["OFFICER"]
+            elif any(clean_name.startswith(p) for p in CSB_PREFIXES):
+                new_category_name = CATEGORY_ROLE_NAMES["CHIEF_OF_STAFF_BOARD"]
+            elif any(clean_name.startswith(p) for p in DEV_PREFIX):
+                new_category_name = CATEGORY_ROLE_NAMES["DEVELOPER"]
+        else:
+            new_category_name = "HQ"
+
+    return new_category_name
 
 
-async def add_roles_to_user(*args):
-    pass
+
+# Adds the list of discord roles to a user
+async def add_roles_to_user(interaction : discord.Interaction, member : discord.Member, *args):
+    for role in args:
+        try:
+            await member.add_roles(role, reason="Syncing Roblox rank")
+        except discord.Forbidden:
+            await log_error(interaction, "add_roles_to_user", 1, f"Permission denied when adding role {role.name} to {member.id}")
+        except discord.HTTPException as e:
+            await log_error(interaction, "add_roles_to_user", 2, f"Failed to add role {role.name} to {member.id}. Error Msg: {e}")
 
 
-async def sync_discord_and_roblox_roles(member: discord.member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int) -> int | None:
+
+# Removes the list of discord roles from a user
+async def remove_roles_to_user(interaction : discord.Interaction, member : discord.Member, *args):
+    for role in args:
+        try:
+            await member.remove_roles(role, reason="Syncing Roblox rank")
+        except discord.Forbidden:
+            await log_error(interaction, "remove_roles_to_user", 1, f"Permission denied when adding role {role.name} to {member.id}")
+        except discord.HTTPException as e:
+            await log_error(interaction, "remove_roles_to_user", 2, f"Failed to add role {role.name} to {member.id}. Error Msg: {e}")
+    
+
+
+# returns a tuple if successful, syncs the user's discord roles with the users roblox group roles
+async def sync_discord_and_roblox_roles(member: discord.Member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int) -> tuple[discord.Member, discord.Interaction, list[discord.Role | None]] | None:
     
     # Bot permission checks
     
@@ -183,50 +204,11 @@ async def sync_discord_and_roblox_roles(member: discord.member, interaction : di
         await log_error(interaction, "sync_discord_roles", 2, "Missing Change nicknames permission")
         return
     
-    # Fetch role
+    # Fetch roblox group role and sub group name
 
-    rank = roblox_api.get_group_rank(db.get_roblox_id(member.id)[0], group_id)
-    data = roblox_api.get_group_data(group_id)
+    group_role, sub_group_name = await get_roblox_multi_group_role(member, interaction, group_id, sub_one, sub_two, sub_three)
 
-'''
-async def sync_discord_roles(member: discord.Member, interaction: discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int):
-
-    bot_member = interaction.guild.me
-
-    if not bot_member.guild_permissions.manage_roles:
-        await log_error(interaction, "sync_discord_roles", 1, "Missing Manage roles permission")
-        return
-
-    if not bot_member.guild_permissions.manage_nicknames:
-        await log_error(interaction, "sync_discord_roles", 2, "Missing Change nicknames permission")
-        return
-
-    # ---------------- FETCH ROLE ----------------
-    
-    group_role, subgroup_name = await get_roblox_multi_group_role(member, interaction, group_id, sub_one, sub_two, sub_three)
-
-    # ---------------- HELPERS / CONFIG ----------------
-    def normalize(name: str) -> str:
-        if name is None:
-            return ""
-        return name.strip().upper()
-
-    # Category role names in the guild
-    CATEGORY_ROLE_NAMES = {
-        "ENLISTED": "Enlisted",
-        "OFFICER": "Officer",
-        "CHIEF_OF_STAFF_BOARD": "👑 Chief of Staff Board",
-        "DEVELOPER": "[DEV] Developer",
-    }
-
-    # Prefix groups (normalized)
-    ENLISTED_PREFIX = ("[OR-",)
-    OFFICER_PREFIX = ("[OF-",)
-    CSB_PREFIXES = ("[CDS", "[VCD", "[SEA", "[CAS", "[VCA", "[ASM")
-    DEV_PREFIX = ("[DEV",)
-
-    # ---------------- WHEN USER HAS A ROBLOX GROUP ROLE ----------------
-    if group_role:
+    if group_role or group_role != 0:
         role_name = group_role.get("name", "Unknown")
         clean_name = normalize(role_name)
 
@@ -248,32 +230,20 @@ async def sync_discord_roles(member: discord.Member, interaction: discord.Intera
             await log_error(interaction, "sync_discord_roles", 3, f"The {role_name} discord role does not exist.")
             return
 
-        # Determine the new category for this role
-        new_category_name = None
-        if subgroup_name:
-            new_category_name = subgroup_name
-        else:
-            if interaction.guild.id == main_guild_id or any(clean_name.startswith(p) for p in CSB_PREFIXES):
-                if any(clean_name.startswith(p) for p in ENLISTED_PREFIX):
-                    new_category_name = CATEGORY_ROLE_NAMES["ENLISTED"]
-                elif any(clean_name.startswith(p) for p in OFFICER_PREFIX):
-                    new_category_name = CATEGORY_ROLE_NAMES["OFFICER"]
-                elif any(clean_name.startswith(p) for p in CSB_PREFIXES):
-                    new_category_name = CATEGORY_ROLE_NAMES["CHIEF_OF_STAFF_BOARD"]
-                elif any(clean_name.startswith(p) for p in DEV_PREFIX):
-                    new_category_name = CATEGORY_ROLE_NAMES["DEVELOPER"]
-            else:
-                new_category_name = "HQ"
-
         # Resolve category role object (may be None if not configured)
+
+        new_category_name = get_category_role_name(interaction, clean_name, sub_group_name)
+
         category_role = None
         if new_category_name:
             try:
                 category_role = discord.utils.get(interaction.guild.roles, name=new_category_name)
             except Exception as e:
                 await log_error(interaction, "sync_discord_roles", 4, f"The {new_category_name} discord role does not exist. Error Msg: {e}")
+                return
 
-        # Build sets of roles to keep and to remove
+        # ----- ROLE ORGANISATION (Start)
+
         default_role = interaction.guild.default_role
         
         # Keep the main rank role and the new category role (if present)
@@ -288,8 +258,7 @@ async def sync_discord_roles(member: discord.Member, interaction: discord.Intera
         ]
 
         # Roles to remove:
-        # - Any role that is not @everyone, not Roblox Verified, not managed,
-        #   not above the bot, and not in keep_role_names.
+        # - Any role that is not @everyone, not Roblox Verified, not managed,  not above the bot, and not in keep_role_names.
         to_remove = [
             r for r in member.roles
             if (
@@ -313,20 +282,12 @@ async def sync_discord_roles(member: discord.Member, interaction: discord.Intera
 
         # Perform removals (if any)
         if remove_set:
-            try:
-                await member.remove_roles(*remove_set, reason="Syncing Roblox rank")
-            except discord.HTTPException as e:
-                await log_error(interaction, "sync_discord_roles", 5, f"Failed to remove roles for {member.id}. Error Msg: {e}")
+            await remove_roles_to_user(interaction, member, *remove_set)
 
         # Add the main role if missing
         if role not in member.roles:
-            try:
-                await member.add_roles(role, reason="Syncing Roblox rank")
-            except discord.Forbidden:
-                await log_error(interaction, "sync_discord_roles", 6, f"Permission denied when adding role {role.name} to {member.id}")
-            except discord.HTTPException as e:
-                await log_error(interaction, "sync_discord_roles", 7, f"Failed to add role {role.name} to {member.id}. Error Msg: {e}")
-
+            await add_roles_to_user(interaction, member, role)
+            
         # Ensure category role is correct: remove other category roles (defensive) then add the new one
         # Remove any remaining category roles that are not the desired one
         remaining_conflicting = [
@@ -336,37 +297,26 @@ async def sync_discord_roles(member: discord.Member, interaction: discord.Intera
             and r < interaction.guild.me.top_role
         ]
         if remaining_conflicting:
-            try:
-                await member.remove_roles(*remaining_conflicting, reason="Syncing category roles")
-            except discord.HTTPException as e:
-                await log_error(interaction, "sync_discord_roles", 8, f"Failed to remove conflicting category roles for {member.id}. Error Msg: {e}")
+            await remove_roles_to_user(interaction, member, *remaining_conflicting)
 
         # Add the category role if applicable and missing
         if category_role and category_role not in member.roles:
-            try:
-                await member.add_roles(category_role, reason="Syncing category role")
-            except discord.Forbidden:
-                await log_error(interaction, "sync_discord_roles", 9, f"Permission denied when adding category role {category_role.name} to {member.id}")
-            except discord.HTTPException as e:
-                await log_error(interaction, "sync_discord_roles", 10, f"Failed to add category role {category_role.name} to {member.id}. Error Msg: {e}")
+            await add_roles_to_user(interaction, member, category_role)
+
+        # ----- ROLE ORGANISATION (End)
 
         # Nickname update
         try:
             await set_prefix_nickname(member, role_name)
         except Exception as e:
-            await log_error(interaction, "sync_discord_roles", 11, f"Failed to set nickname for {member.id}. Error Msg: {e}")
+            log_error(interaction, "sync_discord_roles", 11, f"Failed to set nickname for {member.id}. Error Msg: {e}")
 
-        # DM the user (best-effort)
-        try:
-            await member.send(f"You have been ranked in 'Calderian Army' to the '**{role.name}**' rank.")
-        except discord.Forbidden:
-            pass
+        return member, interaction, [role, category_role]
 
-        return 1
-    
-    # ---------------- WHEN USER HAS NO ROBLOX GROUP ROLE ----------------
+
+    # User has no group role -> they are a CIV
     else:
-        # Remove all non-exempt roles (we will keep category roles only if desired)
+        # Remove all non-exempt roles 
         default_role = interaction.guild.default_role
         roles_to_strip = [
             r for r in member.roles
@@ -390,14 +340,5 @@ async def sync_discord_roles(member: discord.Member, interaction: discord.Intera
                 await log_error(interaction, "sync_discord_roles", 13, f"Permission denied when adding civilian role to {member.id}")
             except discord.HTTPException as e:
                 await log_error(interaction, "sync_discord_roles", 14, f"Failed to add civilian role to {member.id}. Error Msg: {e}")
-
-        try:
-            await member.send(
-                f"You have been ranked in the {interaction.guild.name} Discord Server\n"
-                "You are not in the Roblox group. You have been given the role: **Civilian**."
-            )
-        except discord.Forbidden:
-            pass
-
-        return 1
-'''
+        
+        return member, interaction, [civilian_role]
