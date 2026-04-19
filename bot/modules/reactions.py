@@ -45,29 +45,16 @@ class ReactionHandler(commands.Cog):
         # Ignore bot
         if payload.user_id == self.bot.user.id:
             return
-        
-        print("REACTION DETECTED")
 
-        print("User:", payload.user_id)
-        print("Guild:", payload.guild_id)
-        print("Message:", payload.message_id)
-        print("Emoji:", payload.emoji, str(payload.emoji))
-
-        channel_id, message_id = db.get_server_rules_ids() 
+        channel_id, message_id = db.get_server_rules_ids(payload.guild_id) 
 
         if payload.message_id != int(message_id):
-            print("Wrong message")
             return
 
         if payload.emoji.name != "✅":
-            print("Wrong emoji")
             return
 
-        print("Saving to DB")
         db.save_accepted_rules(payload.guild_id, payload.user_id)
-
-        print("Immediate check:",
-            db.has_accepted_rules(payload.guild_id, payload.user_id))
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -76,7 +63,7 @@ class ReactionHandler(commands.Cog):
             return
 
         # Same as before
-        channel_id, message_id = db.get_server_rules_ids() 
+        channel_id, message_id = db.get_server_rules_ids(payload.guild_id) 
 
         if payload.message_id != int(message_id):
             return
