@@ -1,0 +1,147 @@
+{
+    "atc": {
+        "title": "[ATC] Army Training Command",
+        "description": "ATC is the army’s primary training branch.",
+        "commander": "N/A",
+        "deputy": "N/A",
+        "csm": "N/A",
+        "roblox": "https://www.roblox.com/communities/151073304",
+        "discord": "https://discord.gg/XXEg8gaGET",
+        "sub_branches": {
+            "basic_training_unit": {
+                "name": "[BTU] Basic Training Unit",
+                "description": "BTU handles training of new recruits.",
+                "roblox": "https://www.roblox.com/communities/153048500",
+                "discord": "https://discord.gg/Str7XyhGe7"
+            },
+            "officer_training_unit": {
+                "name": "[OTU] Officer Training Unit",
+                "description": "OTU trains new officers for leadership roles.",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/2AqzgpYcTX"
+            }
+        }
+    },
+    "ifb": {
+        "title": "[IFB] Infantry Force Branch",
+        "description": "IFB is the Amy’s primary fighting force responsible for fighting on the front lines, primarily specialising in ground, airborne and armoured methods of combat.",
+        "commander": "N/A",
+        "deputy": "N/A",
+        "csm": "N/A",
+        "roblox": "https://www.roblox.com/communities/1076059478",
+        "discord": "https://discord.gg/pPf67hN6fc",
+        "sub_branches": {
+            "1st_light_infantry_division": {
+                "name": "[1LID] 1st Light Infantry Division",
+                "description": "1LID is the primary infantry force for regular close quarters combat.",
+                "roblox": "https://www.roblox.com/communities/777395276",
+                "discord": "https://discord.gg/c6mRuJHY9P"
+            },
+            "1st_airborne_assault_division": {
+                "name": "[1AAD] 1st Airborne Assault Division",
+                "description": "1AAD holds specialised light infantry capable of parachuting or repelling onto the front lines.",
+                "roblox": "https://www.roblox.com/communities/120960713",
+                "discord": "https://discord.gg/JQGtX7NvdU"
+            },
+            "1st_armoured_division": {
+                "name": "[1AD] 1st Armoured Division",
+                "description": "1AD holds the heavy mechanised and armoured portions of the infantry, changing the course of a battle for the better.",
+                "roblox": "https://www.roblox.com/communities/749368711",
+                "discord": "https://discord.gg/E74zMnFntT"
+            }
+        }
+    },
+    "soc": {
+        "title": "[SOC] Special Operations Command",
+        "description": "SOC holds the most elite special forces unit of the Calderian Army, that perform special operations missions such as hostage rescue. They are also responsible for Special Intelligence.",
+        "commander": "N/A",
+        "deputy": "N/A",
+        "csm": "N/A",
+        "roblox": "N/A",
+        "discord": "https://discord.gg/5jujMRTgT2",
+        "sub_branches": {
+            "special_forces_directorate": {
+                "name": "[SFD] Special Forces Directorate",
+                "description": "SFD personel are the most elite fighting force of the Calderian Army. Performs special missions.",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/vJr6usaHGw"
+            },
+            "special_intelligence_bureau": {
+                "name": "[SIB] Special Intelligence Bureau",
+                "description": "SIB is a secretive branch responsible for gathering inteligence in battle and at base. {Primary Information Classified}",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/qpmXB6JNG9"
+            }
+        }
+    },
+    "mp": {
+        "title": "[MP] Military Police",
+        "description": "MP patrol and guard all army installations, ensuring personel are following rules and that the installations are defended",
+        "commander": "N/A",
+        "deputy": "N/A",
+        "csm": "N/A",
+        "roblox": "N/A",
+        "discord": "https://discord.gg/P2CJjN5XvS",
+        "sub_branches": {
+            "patrol_and_enforcement_detachment": {
+                "name": "[PED] Patrol & Enforcement Detachment",
+                "description": "PED are responsible for patrolling and guarding all army installations.",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/TUQkpP6Kua"
+            },
+            "emergency_response_detachment": {
+                "name": "[ERD] Emergency Response Detachment",
+                "description": "ERD assist the PED in daily duties but also respond to emergency mattters inside of the installations.",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/92FUnZ95zS"
+            }
+        }
+    },
+    "epa": {
+        "title": "[EPA] Executive Protection Agency",
+        "description": "EPA is responsible for protecting high-value Calderian installations and high-ranking personel such as the President and members of the CSB",
+        "commander": "N/A",
+        "deputy": "N/A",
+        "csm": "N/A",
+        "roblox": "h",
+        "discord": "https://discord.gg/jxHdcmJxrA",
+        "sub_branches": {
+            "presidential_security_unit": {
+                "name": "[PSA] Presidential Security Unit",
+                "description": "PSA guards the President. Assists the ESU in guarding other personel and installations, if the President is not present.",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/mzWmJNFh2f"
+            },
+            "executive_security_unit": {
+                "name": "[ESU] Executive Security Unit",
+                "description": "ESU personel guard high-ranking personel and installations.",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/MKdbHqMFzp"
+            },
+            "tactical_support_unit": {
+                "name": "[TSU] Tactical Support Unit",
+                "description": "TSU are specialised ESU to be deployed in specific scenarios such as airborne.",
+                "roblox": "N/A",
+                "discord": "https://discord.gg/RKcK3WEzEq"
+            }
+        }
+    },
+    "sams": {
+        "title": "[SAMS] Supporting Aid & Medical Service",
+        "description": "N/A",
+        "commander": "N/A",
+        "deputy": "N/A",
+        "csm": "N/A",
+        "roblox": "N/A",
+        "discord": "https://discord.gg/eteXkrUcZq",
+        "sub_branches": {
+            "none": {
+                "name": "N/A",
+                "description": "N/A",
+                "roblox": "N/A",
+                "discord": "N/A"
+            }
+        }
+    }
+    
+}

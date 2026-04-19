@@ -1,6 +1,31 @@
 '''
 
-info
+Module: commands.py
+Author: EagleGamerCoder
+Most recent update version: V 0.6.1
+Description:
+    Controls all commmands that are avaliable by the bot.
+
+Usage:
+    bot.py
+
+Components:
+    Functions:
+        get_branches()
+        get_sub_branches(branch)
+        branch_autocomplete(interaction: discord.Interaction, current: str)
+        sub_branch_autocomplete(interaction: discord.Interaction, current: str)
+        setup(bot, context)
+            on_app_commmand_error(interaction: discord.Interaction, error: app_commands.AppCommandError)
+            setup_config(interaction : discord.Interaction, role : discord.Role,  group_id : int, sub_group_id_one : int, sub_group_id_two : int, sub_group_id_three : int)
+            setup_embeds(interaction : discord.Interaction, server_rules_channel_id : str, server_rules_message_id : str | None)
+            edit_branch_info(interaction : discord.Interaction, branch: str, field: str, value: str)
+            add_sub_branch(interaction: discord.Interaction, branch: str, key: str, name: str, description: str, roblox: str)
+            remove_sub_branch(interaction: discord.Interaction, branch: str, sub: str)
+
+    Classes:
+        _
+
 
 '''
 
@@ -11,14 +36,56 @@ import discord
 from discord import app_commands
 
 # Modules
+from utils import data_loader
+from views import embeds
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
+
+def get_branches():
+    data = data_loader.load_data()
+    return list(data.keys())
+
+
+def get_sub_branches(branch):
+    data = data_loader.load_data()
+    if branch not in data:
+        return []
+    return list(data[branch].get("sub_branches", {}).keys())
+
+async def branch_autocomplete(interaction: discord.Interaction, current: str):
+    branches = get_branches()
+
+    return [
+        app_commands.Choice(name=b, value=b)
+        for b in branches if current.lower() in b.lower()
+    ][:25]
+
+async def sub_branch_autocomplete(interaction: discord.Interaction, current: str):
+    branch = None
+
+    # try to read already typed branch
+    options = interaction.data.get("options", [])
+    for opt in options:
+        if opt["name"] == "branch":
+            branch = opt["value"]
+
+    if not branch:
+        return []
+
+    subs = get_sub_branches(branch)
+
+    return [
+        app_commands.Choice(name=s, value=s)
+        for s in subs if current.lower() in s.lower()
+    ][:25]
 
 async def setup(bot, context):
     # Catches command errors
     @bot.tree.error
     async def on_app_commmand_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
         await context.log_error(interaction, "on_app_commmand_error", 1, error)
+
+    # ------------------------- ADMIN COMMANDS -------------------------
 
     # /setup_config
     @bot.tree.command(name="setup-config", description="Sets up the config for the Bot (Use `/setup_embeds` first).")
@@ -43,6 +110,8 @@ async def setup(bot, context):
         except Exception as e:
             await context.log_error(interaction, "setup_config", 1, e)
     
+
+
     # /setup_embeds
     @bot.tree.command(name="setup-embeds", description="Sets up the Server rules embed and the verification emded (Use in #Verification).")
     @app_commands.checks.has_permissions(administrator=True)
@@ -94,7 +163,10 @@ async def setup(bot, context):
                 except Exception as e:
                     await context.log_error(interaction, "setup_embeds", 2, e)
                     return
-
+                
+                # Final response
+                await interaction.followup.send("✅ Setup complete.", ephemeral=True)
+                
             if msg == None:
                 return
 
@@ -103,3 +175,91 @@ async def setup(bot, context):
         except Exception as e:
             await context.log_error(interaction, "setup_embeds", 3, e)
             return
+    
+    # /edit_branch_info
+    @bot.tree.command(name="edit-branch-info")
+    @app_commands.describe(branch="Main branch (e.g. atc)",
+        sub="Sub branch key (e.g. basic_training_unit)",
+        field="Field (name, description, roblox)",
+        value="New value"
+    )
+    @app_commands.checks.has_permissions(administrator=True)
+    async def edit_branch_info(interaction : discord.Interaction, branch: str, field: str, value: str):
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send("Updating branch info...", ephemeral=True)
+
+        success = data_loader.update_branch_field(branch, field, value)
+
+        if not success:
+            await interaction.response.send_message("Branch not found.", ephemeral=True)
+            return
+
+        data = data_loader.load_data()[branch]
+        embed = embeds.create_branch_info_embed(branch, data)
+
+        await interaction.channel.send(embed=embed)
+
+        await interaction.followup.send("Updated branch info!", ephemeral=True)
+
+    # /add_sub_branch
+    @bot.tree.command(name="add-sub-branch")
+    @app_commands.describe(
+        branch="Main branch (e.g. atc)",
+        key="Internal ID (e.g. basic_training_unit)",
+        name="Display name",
+        description="Description",
+        roblox="Roblox group link"
+    )
+    @app_commands.autocomplete(branch=branch_autocomplete)
+    @app_commands.checks.has_permissions(administrator=True)
+    async def add_sub_branch(interaction: discord.Interaction, branch: str, key: str, name: str, description: str, roblox: str):
+
+        interaction.response.defer(ephemeral=True)
+
+        success = data_loader.add_sub_branch(branch, key, name, description, roblox)
+
+        if not success:
+            await interaction.followup.send("Invalid Branch.", ephemeral=True)
+            return
+
+        await interaction.followup.send(
+            f"Sub-branch `{name}` added to `{branch}`",
+            ephemeral=True
+        )
+
+    # /remove_sub_branch
+    @bot.tree.command(name="remove-sub-branch")
+    @app_commands.describe(
+        branch="Main branch",
+        sub="Sub branch key"
+    )
+    @app_commands.autocomplete(
+        branch=branch_autocomplete,
+        sub=sub_branch_autocomplete
+    )
+    @app_commands.checks.has_permissions(administrator=True)
+    async def remove_sub_branch(interaction: discord.Interaction, branch: str, sub: str):
+
+        interaction.response.defer(ephemeral=True)
+
+        success = data_loader.remove_sub_branch(branch, sub)
+
+        if not success:
+            await interaction.followup.send("Invalid Branch.", ephemeral=True)
+            return
+
+        await interaction.followup.send(
+            f"Removed `{sub}` from `{branch}`",
+            ephemeral=True
+        )
+    # ------------------------- LIMITED COMMANDS -------------------------
+
+    # Commands here
+
+    # ------------------------- REGULAR COMMANDS -------------------------
+
+    # /ping
+    @bot.tree.command(name="ping",description="Tests the bots response by responding with pong.")
+    async def ping(interaction : discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        interaction.followup.send("Pong",ephemeral=True)

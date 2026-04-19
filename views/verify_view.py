@@ -77,7 +77,8 @@ def get_guild_config(guild_id : int) -> dict | None:
             "sub_two" : sub_two,
             "sub_three" : sub_three,
         }
-    except Exception:
+    except Exception as e:
+        log_error(None, "get_guild_config", 1, e)
         return None
 
 

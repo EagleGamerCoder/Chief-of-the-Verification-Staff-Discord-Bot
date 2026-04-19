@@ -2,19 +2,22 @@
 
 Module: reactions.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.4
+Most recent update version: V 0.6.1
 Description:
     Tracks reactions made by the user to update the database.
 
 Usage:
-    _
+    bot.py
 
 Components:
     Functions:
-        _
+        setup(bot, ctx)
 
     Classes:
-        _
+        ReactionHandler(commands.Cog)
+            __init__(self, bot)
+            on_raw_reaction_add(self, payload)
+            on_raw_reaction_remove(self, payload)
 
 '''
 

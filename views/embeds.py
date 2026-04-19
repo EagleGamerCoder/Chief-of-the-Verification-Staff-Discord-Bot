@@ -2,19 +2,21 @@
 
 Module: embeds.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.1
+Most recent update version: V 0.6.1
 Description:
     Creates and returns all embeds used by the bot.
 
 Usage:
     verify_view.py
     discord_roblox_role_sync.py
+    commands.py
 
 Components:
     Functions:
         create_verification_embed() -> discord.Embed
         create_server_rules_embed() -> discord.Embed
         create_role_output_embed(roles : list) -> discord.Embed
+        create_branch_info_embed(branch_name: str, data: dict) -> discord.Embed
 
     Classes:
         _
@@ -73,3 +75,45 @@ def create_role_output_embed(roles : list) -> discord.Embed:
         description=f"You have been given the roles:\n\n{role_list}",
         color=discord.Color(0xffd739)
     )
+
+def create_branch_info_embed(branch_name: str, data: dict) -> discord.Embed:
+    embed = discord.Embed(
+        title=data.get("title", "No title set."),
+        description=data.get("description", "No description set."),
+        color=discord.Color(0xffd739)
+    )
+
+    embed.add_field(
+        name="Command Information",
+        value=(
+            f"Commander: {data.get('commander', 'N/A')}\n"
+            f"Deputy Commander: {data.get('deputy', 'N/A')}\n"
+            f"Command Sergeant Major: {data.get('csm', 'N/A')}"
+        ),
+        inline=False
+    )
+
+    sub_branches = data.get("sub_branches", {})
+
+    sub_text = ""
+
+    for key, sb in sub_branches.items():
+        sub_text += (
+            f"__{sb.get('name', key)}__\n"
+            f"> {sb.get('description', 'No description')}\n"
+            f"> Roblox: {sb.get('roblox', 'N/A')}\n\n"
+        )
+
+    embed.add_field(
+        name="Sub-Branches",
+        value=sub_text or "None",
+        inline=False
+    )
+
+    embed.add_field(
+        name="Sub-Branches",
+        value=data.get("sub_branches", "N/A"),
+        inline=False
+    )
+
+    return embed
