@@ -2,7 +2,7 @@
 
 Module: db.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.3
+Most recent update version: V 0.5.4
 Description:
     Handles all database quieries including checking, getting 
     and saving.
@@ -241,6 +241,8 @@ def has_accepted_rules(guild_id, user_id):
     data = c.fetchone()
     conn.close()
     return data is not None
+
+
 
 def remove_accepted_rules(guild_id, user_id):
     conn = sqlite3.connect(DB_FILE)

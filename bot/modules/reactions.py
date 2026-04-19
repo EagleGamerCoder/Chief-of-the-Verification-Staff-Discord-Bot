@@ -2,7 +2,7 @@
 
 Module: reactions.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.3
+Most recent update version: V 0.5.4
 Description:
     Tracks reactions made by the user to update the database.
 
@@ -55,7 +55,7 @@ class ReactionHandler(commands.Cog):
 
         channel_id, message_id = db.get_server_rules_ids() 
 
-        if payload.message_id != message_id:
+        if payload.message_id != int(message_id):
             print("Wrong message")
             return
 
@@ -66,6 +66,9 @@ class ReactionHandler(commands.Cog):
         print("Saving to DB")
         db.save_accepted_rules(payload.guild_id, payload.user_id)
 
+        print("Immediate check:",
+            db.has_accepted_rules(payload.guild_id, payload.user_id))
+
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         # Ignore bot
@@ -75,7 +78,7 @@ class ReactionHandler(commands.Cog):
         # Same as before
         channel_id, message_id = db.get_server_rules_ids() 
 
-        if payload.message_id != message_id:
+        if payload.message_id != int(message_id):
             return
 
         if str(payload.emoji) != "✅":
