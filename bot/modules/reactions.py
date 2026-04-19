@@ -41,21 +41,29 @@ class ReactionHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+
         # Ignore bot
         if payload.user_id == self.bot.user.id:
             return
         
-        # Only track specific message
-        channel_id, message_id = db.get_server_rules_ids()
+        print("REACTION DETECTED")
+
+        print("User:", payload.user_id)
+        print("Guild:", payload.guild_id)
+        print("Message:", payload.message_id)
+        print("Emoji:", payload.emoji, str(payload.emoji))
+
+        channel_id, message_id = db.get_server_rules_ids() 
 
         if payload.message_id != message_id:
+            print("Wrong message")
             return
 
-        # Only track specific emoji
-        if str(payload.emoji) != "✅":
+        if payload.emoji.name != "✅":
+            print("Wrong emoji")
             return
 
-        # Save to DB
+        print("Saving to DB")
         db.save_accepted_rules(payload.guild_id, payload.user_id)
 
     @commands.Cog.listener()
