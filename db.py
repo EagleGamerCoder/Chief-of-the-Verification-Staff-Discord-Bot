@@ -1,21 +1,36 @@
 '''
 
-Controls and holds all functions of the sql database 
+Module: db.py
+Author: EagleGamerCoder
+Most recent update version: V 0.5.3
+Description:
+    Handles all database quieries including checking, getting 
+    and saving.
 
+Usage:
+    verify_view.py
+    reactions.py
+    discord_roblox_role_sync.py
 
- ---------- Function list:
-.init_database()
-.set_guild_config(guild_id, channel_id, role_id, group_id, sub_group_id_one, sub_group_id_two, sub_group_id_three)
-.get_guild_config(guild_id)
-.save_pending(discord_id, roblox_id, code, created_at)
-.get_pending(discord_id)
-.delete_pending(discord_id)
-.save_verify(discord_id, roblox_id)
-.get_roblox_id(discord_id)
-.save_server_rules_ids(guild_id, channel_id, message_id)
-.get_server_rules_ids(guild_id)
-.save_accepted_rules(guild_id, user_id)
-.has_accepted_rules(guild_id, user_id)
+Components:
+    Functions:
+        init_database()
+        set_guild_config(guild_id, channel_id, role_id, group_id, sub_group_id_one, sub_group_id_two, sub_group_id_three)
+        get_guild_config(guild_id)
+        save_pending(discord_id, roblox_id, code, created_at)
+        get_pending(discord_id)
+        delete_pending(discord_id)
+        save_verify(discord_id, roblox_id)
+        get_roblox_id(discord_id)
+        save_server_rules_ids(guild_id, channel_id, message_id)
+        get_server_rules_ids(guild_id)
+        save_accepted_rules(guild_id, user_id)
+        has_accepted_rules(guild_id, user_id)
+        remove_accepted_rules(guild_id, user_id)
+
+    Classes:
+        _
+
  
 '''
 
@@ -226,3 +241,13 @@ def has_accepted_rules(guild_id, user_id):
     data = c.fetchone()
     conn.close()
     return data is not None
+
+def remove_accepted_rules(guild_id, user_id):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute(
+        "DELETE FROM accepted_rules WHERE guild_id = ? AND user_id = ?",
+        (guild_id, user_id)
+    )
+    conn.commit()
+    conn.close()
