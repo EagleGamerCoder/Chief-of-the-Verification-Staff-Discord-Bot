@@ -2,7 +2,7 @@
 
 Module: roblox_api.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.1
+Most recent update version: V 0.5.2
 Description:
     Handles all connections to the roblox api using aiohttp.
 

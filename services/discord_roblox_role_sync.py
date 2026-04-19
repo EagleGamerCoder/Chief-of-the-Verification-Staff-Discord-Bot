@@ -2,7 +2,7 @@
 
 Module: discord_roblox_role_sync.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.1
+Most recent update version: V 0.5.2
 Description:
     Manages adding roblox group roles and nicknames to 
     discord.

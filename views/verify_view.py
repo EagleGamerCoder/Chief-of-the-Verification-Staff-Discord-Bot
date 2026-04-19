@@ -2,7 +2,7 @@
 
 Module: verify_view.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.1
+Most recent update version: V 0.5.2
 Description:
     Handles the Discord verification UI system, including
     persistent buttons and a modal used to collect Roblox
