@@ -202,7 +202,7 @@ class StartVerificationButton(discord.ui.Button):
 
             ids = db.get_server_rules_ids(interaction.guild.id)
             if ids is None:
-                log_error(interaction, "StartVerificationButton", 1, "Guild not configured")
+                await log_error(interaction, "StartVerificationButton", 1, "Guild not configured")
                 return
 
             # Server rules reaction
@@ -264,12 +264,12 @@ class CompleteVerificationButton(discord.ui.Button):
             
             config = get_guild_config(interaction.guild.id)
             if not config:
-                log_error(interaction, "CompleteVerificationButton", 1, "Guild not configured")
+                await log_error(interaction, "CompleteVerificationButton", 1, "Guild not configured")
                 return
 
             player_data = await roblox_api.get_roblox_player_data(roblox_id)
             if player_data == None:
-                log_error(interaction, "CompleteVerificationButton", 2, f"Error when getting player data of id: {roblox_id}")
+                await log_error(interaction, "CompleteVerificationButton", 2, f"Error when getting player data of id: {roblox_id}")
             elif player_data['isBanned'] == True:
                 interaction.followup.send(f"Player of id: {roblox_id} is banned, cannot verify.", ephemeral=True)
             
@@ -328,7 +328,7 @@ class UpdateButton(discord.ui.Button):
             
             config = get_guild_config(interaction.guild.id)
             if not config:
-                log_error(interaction, "UpdateButton", 1, "Guild not configured")
+                await log_error(interaction, "UpdateButton", 1, "Guild not configured")
                 return
 
             await asyncio.sleep(0.5)
