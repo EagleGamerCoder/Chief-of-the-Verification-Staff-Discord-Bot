@@ -243,4 +243,4 @@ async def setup(bot, context):
     @bot.tree.command(name="ping",description="Tests the bots response by responding with pong.")
     async def ping(interaction : discord.Interaction):
         await interaction.response.defer(ephemeral=True)
-        interaction.followup.send("Pong",ephemeral=True)
+        await interaction.followup.send("Pong",ephemeral=True)
