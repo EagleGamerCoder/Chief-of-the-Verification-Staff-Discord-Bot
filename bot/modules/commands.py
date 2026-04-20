@@ -11,6 +11,7 @@ Usage:
 
 Components:
     Functions:
+        get_branch_data()
         get_branches()
         get_sub_branches(branch)
         branch_autocomplete(interaction: discord.Interaction, current: str)
@@ -19,6 +20,7 @@ Components:
             on_app_commmand_error(interaction: discord.Interaction, error: app_commands.AppCommandError)
             setup_config(interaction : discord.Interaction, role : discord.Role,  group_id : int, sub_group_id_one : int, sub_group_id_two : int, sub_group_id_three : int)
             setup_embeds(interaction : discord.Interaction, server_rules_channel_id : str, server_rules_message_id : str | None)
+            send_branch_info(interaction : discord.Interaction)
             edit_branch_info(interaction : discord.Interaction, branch: str, field: str, value: str)
             add_sub_branch(interaction: discord.Interaction, branch: str, key: str, name: str, description: str, roblox: str)
             remove_sub_branch(interaction: discord.Interaction, branch: str, sub: str)
@@ -40,6 +42,14 @@ from utils import data_loader
 from views import embeds
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
+
+def get_branch_data():
+    data = data_loader.load_data()
+    
+    if not data or not isinstance(data, dict):
+        return None
+        
+    return data
 
 def get_branches():
     data = data_loader.load_data()
@@ -183,17 +193,17 @@ async def setup(bot, context):
         await interaction.response.defer(ephemeral=True)
         await interaction.followup.send("Sending branch info...", ephemeral=True)
 
-        data = get_branches()
+        data = get_branch_data()
 
         if not data:
-            await interaction.followup.send("Data not found.")
+            await interaction.followup.send("Data not found.", ephemeral=True)
             return
         
-        for i in data:
-            embed = embeds.create_branch_info_embed(data[i])
+        for name, b_data in data.iteams():
+            embed = embeds.create_branch_info_embed(b_data)
             await interaction.channel.send(embed=embed)
         
-        await interaction.followup.send("Branch info sent.")
+        await interaction.followup.send("Branch info sent.", ephemeral=True)
 
     # /edit_branch_info
     @bot.tree.command(name="edit-branch-info", description="Edits a specified branches info.")
