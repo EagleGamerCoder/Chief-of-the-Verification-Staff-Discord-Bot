@@ -2,7 +2,7 @@
 
 Module: embeds.py
 Author: EagleGamerCoder
-Most recent update version: V 0.6.1
+Most recent update version: V 0.6.2
 Description:
     Creates and returns all embeds used by the bot.
 
@@ -76,7 +76,7 @@ def create_role_output_embed(roles : list) -> discord.Embed:
         color=discord.Color(0xffd739)
     )
 
-def create_branch_info_embed(branch_name: str, data: dict) -> discord.Embed:
+def create_branch_info_embed(data: dict) -> discord.Embed:
     embed = discord.Embed(
         title=data.get("title", "No title set."),
         description=data.get("description", "No description set."),

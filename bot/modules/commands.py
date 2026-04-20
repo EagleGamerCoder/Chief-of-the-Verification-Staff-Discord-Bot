@@ -2,7 +2,7 @@
 
 Module: commands.py
 Author: EagleGamerCoder
-Most recent update version: V 0.6.1
+Most recent update version: V 0.6.2
 Description:
     Controls all commmands that are avaliable by the bot.
 
@@ -176,6 +176,25 @@ async def setup(bot, context):
             await context.log_error(interaction, "setup_embeds", 3, e)
             return
     
+    # /send_branch_info
+    @bot.tree.command(name="send-branch-info", description="Sends the branch info")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def send_branch_info(interaction : discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send("Sending branch info...", ephemeral=True)
+
+        data = get_branches()
+
+        if not data:
+            await interaction.followup.send("Data not found.")
+            return
+        
+        for i in data:
+            embed = embeds.create_branch_info_embed(data[i])
+            await interaction.channel.send(embed=embed)
+        
+        await interaction.followup.send("Branch info sent.")
+
     # /edit_branch_info
     @bot.tree.command(name="edit-branch-info", description="Edits a specified branches info.")
     @app_commands.checks.has_permissions(administrator=True)
