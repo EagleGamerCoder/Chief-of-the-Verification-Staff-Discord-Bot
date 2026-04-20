@@ -177,12 +177,7 @@ async def setup(bot, context):
             return
     
     # /edit_branch_info
-    @bot.tree.command(name="edit-branch-info")
-    @app_commands.describe(branch="Main branch (e.g. atc)",
-        sub="Sub branch key (e.g. basic_training_unit)",
-        field="Field (name, description, roblox)",
-        value="New value"
-    )
+    @bot.tree.command(name="edit-branch-info", description="Edits a specified branches info.")
     @app_commands.checks.has_permissions(administrator=True)
     async def edit_branch_info(interaction : discord.Interaction, branch: str, field: str, value: str):
         await interaction.response.defer(ephemeral=True)
@@ -202,14 +197,7 @@ async def setup(bot, context):
         await interaction.followup.send("Updated branch info!", ephemeral=True)
 
     # /add_sub_branch
-    @bot.tree.command(name="add-sub-branch")
-    @app_commands.describe(
-        branch="Main branch (e.g. atc)",
-        key="Internal ID (e.g. basic_training_unit)",
-        name="Display name",
-        description="Description",
-        roblox="Roblox group link"
-    )
+    @bot.tree.command(name="add-sub-branch", description="Adds a new sub branch.")
     @app_commands.autocomplete(branch=branch_autocomplete)
     @app_commands.checks.has_permissions(administrator=True)
     async def add_sub_branch(interaction: discord.Interaction, branch: str, key: str, name: str, description: str, roblox: str):
@@ -228,15 +216,8 @@ async def setup(bot, context):
         )
 
     # /remove_sub_branch
-    @bot.tree.command(name="remove-sub-branch")
-    @app_commands.describe(
-        branch="Main branch",
-        sub="Sub branch key"
-    )
-    @app_commands.autocomplete(
-        branch=branch_autocomplete,
-        sub=sub_branch_autocomplete
-    )
+    @bot.tree.command(name="remove-sub-branch", description="Removes a sub branch.")
+    @app_commands.autocomplete(branch=branch_autocomplete,sub=sub_branch_autocomplete)
     @app_commands.checks.has_permissions(administrator=True)
     async def remove_sub_branch(interaction: discord.Interaction, branch: str, sub: str):
 
