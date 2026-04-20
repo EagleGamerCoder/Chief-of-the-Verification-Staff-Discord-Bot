@@ -199,7 +199,7 @@ async def setup(bot, context):
             await interaction.followup.send("Data not found.", ephemeral=True)
             return
         
-        for name, b_data in data.iteams():
+        for name, b_data in data.items():
             embed = embeds.create_branch_info_embed(b_data)
             await interaction.channel.send(embed=embed)
         
