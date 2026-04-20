@@ -92,7 +92,7 @@ def create_branch_info_embed(data: dict) -> discord.Embed:
         ),
         inline=False
     )
-
+    '''
     sub_branches = data.get("sub_branches", {})
 
     sub_text = ""
@@ -115,5 +115,7 @@ def create_branch_info_embed(data: dict) -> discord.Embed:
         value=data.get("sub_branches", "N/A"),
         inline=False
     )
+
+    '''
 
     return embed

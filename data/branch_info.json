@@ -1,6 +1,6 @@
 {
     "atc": {
-        "title": "[ATC] Army Training Command",
+        "title": "~ [ATC] Army Training Command ~",
         "description": "ATC is the army’s primary training branch.",
         "commander": "N/A",
         "deputy": "N/A",
@@ -23,7 +23,7 @@
         }
     },
     "ifb": {
-        "title": "[IFB] Infantry Force Branch",
+        "title": "~ [IFB] Infantry Force Branch ~",
         "description": "IFB is the Amy’s primary fighting force responsible for fighting on the front lines, primarily specialising in ground, airborne and armoured methods of combat.",
         "commander": "N/A",
         "deputy": "N/A",
@@ -52,7 +52,7 @@
         }
     },
     "soc": {
-        "title": "[SOC] Special Operations Command",
+        "title": "~ [SOC] Special Operations Command ~",
         "description": "SOC holds the most elite special forces unit of the Calderian Army, that perform special operations missions such as hostage rescue. They are also responsible for Special Intelligence.",
         "commander": "N/A",
         "deputy": "N/A",
@@ -75,7 +75,7 @@
         }
     },
     "mp": {
-        "title": "[MP] Military Police",
+        "title": "~ [MP] Military Police ~",
         "description": "MP patrol and guard all army installations, ensuring personel are following rules and that the installations are defended",
         "commander": "N/A",
         "deputy": "N/A",
@@ -98,7 +98,7 @@
         }
     },
     "epa": {
-        "title": "[EPA] Executive Protection Agency",
+        "title": "~ [EPA] Executive Protection Agency ~",
         "description": "EPA is responsible for protecting high-value Calderian installations and high-ranking personel such as the President and members of the CSB",
         "commander": "N/A",
         "deputy": "N/A",
@@ -127,7 +127,7 @@
         }
     },
     "sams": {
-        "title": "[SAMS] Supporting Aid & Medical Service",
+        "title": "~ [SAMS] Supporting Aid & Medical Service ~",
         "description": "N/A",
         "commander": "N/A",
         "deputy": "N/A",
