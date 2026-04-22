@@ -146,10 +146,10 @@ async def setup(bot, context):
 
             # Delete old embeds if they exist
             async for i in interaction.channel.history(limit=100):
-                if i.author.id == bot.user.id and i.embeds:
+                if i.author.id == bot.user.id:
                     await i.delete()
             async for i in server_rules_channel.history(limit=100):
-                if i.author.id == bot.user.id and i.embeds:
+                if i.author.id == bot.user.id:
                     await i.delete()
 
             # Send rules embed
@@ -183,7 +183,7 @@ async def setup(bot, context):
         data = get_branch_data()
 
         async for msg in interaction.channel.history(limit=100):
-            if msg.author.id == bot.user.id and msg.embeds:
+            if msg.author.id == bot.user.ids:
                 await msg.delete()
 
         if not data:
