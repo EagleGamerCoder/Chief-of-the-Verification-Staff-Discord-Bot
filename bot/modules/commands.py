@@ -2,7 +2,7 @@
 
 Module: commands.py
 Author: EagleGamerCoder
-Most recent update version: V 0.6.2
+Most recent update version: V 0.6.3
 Description:
     Controls all commmands that are avaliable by the bot.
 
@@ -125,7 +125,7 @@ async def setup(bot, context):
     # /setup_embeds
     @bot.tree.command(name="setup-embeds", description="Sets up the Server rules embed and the verification emded (Use in #Verification).")
     @app_commands.checks.has_permissions(administrator=True)
-    async def setup_embeds(interaction : discord.Interaction, server_rules_channel_id : str, server_rules_message_id : str | None):
+    async def setup_embeds(interaction : discord.Interaction, server_rules_channel_id : str):
         await interaction.response.defer(ephemeral=True)
 
         await interaction.followup.send("Setting up embeds...", ephemeral=True)
@@ -144,38 +144,25 @@ async def setup(bot, context):
             
             msg = None
 
-            if server_rules_message_id == None:
-                # The embeds do not exist and need to be created
-                
-                # Send rules embed
-                await server_rules_channel.send("# __**Server Rules:**__")
-                msg = await server_rules_channel.send(embed=context.create_server_rules_embed())
-                await msg.add_reaction('✅')
+            # Delete old embeds if they exist
+            for i in interaction.channel.history(limit=100):
+                if i.author.id == bot.user.id and i.embeds:
+                    await i.delete()
+            for i in server_rules_channel.history(limit=100):
+                if i.author.id == bot.user.id and i.embeds:
+                    await i.delete()
 
-                # Send verification embed
-                await interaction.channel.send(f"# __**Welcome to the {interaction.guild.name} Discord Server!**__")
-                await interaction.channel.send(embed=context.create_verification_embed(),view=context.VerifyView())
+            # Send rules embed
+            await server_rules_channel.send("# __**Server Rules:**__")
+            msg = await server_rules_channel.send(embed=context.create_server_rules_embed())
+            await msg.add_reaction('✅')
 
-                # Final response
-                await interaction.followup.send("✅ Setup complete.", ephemeral=True)
-            else:
-                # The embeds do exist and the info from them only needs to be saved
+            # Send verification embed
+            await interaction.channel.send(f"# __**Welcome to the {interaction.guild.name} Discord Server!**__")
+            await interaction.channel.send(embed=context.create_verification_embed(),view=context.VerifyView())
 
-                # validate server_rules_message_id
-                try:
-                    msg = await server_rules_channel.fetch_message(int(server_rules_message_id))
-                except discord.NotFound:
-                    await interaction.followup.send("❌ Invalid message ID.")
-                    return
-                except discord.Forbidden:
-                    await context.log_error(interaction, "setup_embeds", 1, "Missing Read Message History permission")
-                    return
-                except Exception as e:
-                    await context.log_error(interaction, "setup_embeds", 2, e)
-                    return
-                
-                # Final response
-                await interaction.followup.send("✅ Setup complete.", ephemeral=True)
+            # Final response
+            await interaction.followup.send("✅ Setup complete.", ephemeral=True)
                 
             if msg == None:
                 return
@@ -194,6 +181,10 @@ async def setup(bot, context):
         await interaction.followup.send("Sending branch info...", ephemeral=True)
 
         data = get_branch_data()
+
+        for msg in interaction.channel.history(limit=100):
+            if msg.author.id == bot.user.id and msg.embeds:
+                await msg.delete()
 
         if not data:
             await interaction.followup.send("Data not found.", ephemeral=True)

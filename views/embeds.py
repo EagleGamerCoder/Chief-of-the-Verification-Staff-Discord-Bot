@@ -2,7 +2,7 @@
 
 Module: embeds.py
 Author: EagleGamerCoder
-Most recent update version: V 0.6.2
+Most recent update version: V 0.6.3
 Description:
     Creates and returns all embeds used by the bot.
 
@@ -79,12 +79,12 @@ def create_role_output_embed(roles : list) -> discord.Embed:
 def create_branch_info_embed(data: dict) -> discord.Embed:
     embed = discord.Embed(
         title=data.get("title", "No title set."),
-        description=data.get("description", "No description set."),
+        description="**--- Information ---**\n" + data.get("description", "No description set."),
         color=discord.Color(0xffd739)
     )
 
     embed.add_field(
-        name="Command Information",
+        name="--- Command Headquarters ---",
         value=(
             f"Commander: {data.get('commander', 'N/A')}\n"
             f"Deputy Commander: {data.get('deputy', 'N/A')}\n"
@@ -92,7 +92,7 @@ def create_branch_info_embed(data: dict) -> discord.Embed:
         ),
         inline=False
     )
-    '''
+
     sub_branches = data.get("sub_branches", {})
 
     sub_text = ""
@@ -101,21 +101,14 @@ def create_branch_info_embed(data: dict) -> discord.Embed:
         sub_text += (
             f"__{sb.get('name', key)}__\n"
             f"> {sb.get('description', 'No description')}\n"
-            f"> Roblox: {sb.get('roblox', 'N/A')}\n\n"
+            f"> Roblox: {sb.get('roblox', 'N/A')}\n"
+            f"> Discord: {sb.get('discord', 'N/A')}\n\n"
         )
 
     embed.add_field(
-        name="Sub-Branches",
+        name="--- Sub-Branches ---",
         value=sub_text or "None",
         inline=False
     )
-
-    embed.add_field(
-        name="Sub-Branches",
-        value=data.get("sub_branches", "N/A"),
-        inline=False
-    )
-
-    '''
 
     return embed
