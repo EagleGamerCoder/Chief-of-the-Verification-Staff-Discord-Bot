@@ -117,6 +117,7 @@ async def setup(bot, context):
                 "✅ Setup complete.", 
                 ephemeral=True,
             )
+
         except Exception as e:
             await context.log_error(interaction, "setup_config", 1, e)
     
@@ -180,21 +181,26 @@ async def setup(bot, context):
         await interaction.response.defer(ephemeral=True)
         await interaction.followup.send("Sending branch info...", ephemeral=True)
 
-        data = get_branch_data()
+        try:
 
-        async for msg in interaction.channel.history(limit=100):
-            if msg.author.id == bot.user.ids:
-                await msg.delete()
+            data = get_branch_data()
 
-        if not data:
-            await interaction.followup.send("Data not found.", ephemeral=True)
-            return
+            async for msg in interaction.channel.history(limit=100):
+                if msg.author.id == bot.user.id:
+                    await msg.delete()
+
+            if not data:
+                await interaction.followup.send("Data not found.", ephemeral=True)
+                return
+            
+            for name, b_data in data.items():
+                embed = embeds.create_branch_info_embed(b_data)
+                await interaction.channel.send(embed=embed)
+            
+            await interaction.followup.send("Branch info sent.", ephemeral=True)
         
-        for name, b_data in data.items():
-            embed = embeds.create_branch_info_embed(b_data)
-            await interaction.channel.send(embed=embed)
-        
-        await interaction.followup.send("Branch info sent.", ephemeral=True)
+        except Exception as e:
+            await context.log_error(interaction, "send_branch_info", 1, e)
 
     # /edit_branch_info
     @bot.tree.command(name="edit-branch-info", description="Edits a specified branches info.")
