@@ -116,7 +116,7 @@ def create_branch_info_embed(data: dict) -> discord.Embed:
     return embed
 
 # Creates a Embed for the rank info command
-def create_rank_info_embed(interaction : discord.Interaction, data: dict) -> discord.Embed:
+async def create_rank_info_embed(interaction : discord.Interaction, data: dict) -> discord.Embed:
     embed = discord.Embed(
         title=data.get("title", "No title set."),
         description="**--- Information ---**\n" + data.get("description", "No description set."),
@@ -133,7 +133,7 @@ def create_rank_info_embed(interaction : discord.Interaction, data: dict) -> dis
 
     for key, value in data.get("ranks", {}).items(): 
         if value.get("holder") is not None:
-            member : discord.Member = interaction.guild.fetch_member(value.get("discord_id"))
+            member : discord.Member = await interaction.guild.fetch_member(value.get("discord_id"))
             string_of_ranks += f"{value.get("name", "")}: {value.get("holder")} ~ {member.mention}\n"
         else:
             string_of_ranks += f"{value.get("name", "")}\n"
