@@ -314,6 +314,8 @@ async def setup(bot, context):
             
             rank_name = rank_list[rank]
 
+            print(rank_name)
+
             success = data_loader.RANK_change_rank_holder(rank_name, rblx_username, discord_member.id)
             
             if not success:
