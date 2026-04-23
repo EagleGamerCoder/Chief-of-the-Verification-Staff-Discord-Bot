@@ -1,0 +1,106 @@
+{
+    "gov_com": {
+        "title": "--- Governmental Command ---",
+        "description": "The Governmental Command is responsible for the overall management of the Calderia, including the management of all departments and the military.",
+        "ranks": {
+            "p": {
+                "name": "President",
+                "holder": "EagleGamerCity",
+                "discord_id": 0
+            },
+            "s_dod": {
+                "name": "[SDOD] Secretary of the Department of Defense",
+                "holder": "N/A",
+                "discord_id": 0
+            },
+            "ds_dod": {
+                "name": "[DSDOD] Deputy Secretary of the Department of Defense",
+                "holder": "N/A",
+                "discord_id": 0
+            }
+        }
+    },
+    "dod_hq": {
+        "title": "--- Department of Defense Headquarters ---",
+        "description": "The DOD HQ is responsible for the overall management of the Calderian Military inclusing the Army, Airforce, and Navy.",
+        "ranks": {
+            "cds": {
+                "name": "[CDS] Chief of Defense Staff",
+                "holder": "Masterchiefhalo999",
+                "discord_id": 0
+            },
+            "vcds": {
+                "name": "[VCDS] Vice Chief of Defense Staff",
+                "holder": "N/A",
+                "discord_id": 0
+            },
+            "seacsb": {
+                "name": "[SEACSB] Senior Enlisted Advisor to the Chief of Staff Board",
+                "holder": "N/A",
+                "discord_id": 0
+            }
+        }
+    },
+    "army_hq": {
+        "title": "--- Army Headquarters ---",
+        "description": "The Army HQ is responsible for the overall management of the Calderian Army.",
+        "hto": "Apply through an application.",
+        "ranks": {
+            "cas": {
+                "name": "[CAS] Chief of the Army Staff",
+                "holder": "N/A",
+                "discord_id": 0
+            },
+            "vcas": {
+                "name": "[VCAS] Vice Chief of the Army Staff",
+                "holder": "N/A",
+                "discord_id": 0
+            },
+            "asm": {
+                "name": "[ASM] Army Sergeant Major",
+                "holder": "N/A",
+                "discord_id": 0
+            }
+        }
+    },
+    "of": {
+        "title": "--- Officer Ranks ---",
+        "description": "Officer Ranks are the ranks of all commissioned officers in the Calderian Army. They are responsible for leading soldiers and managing operations.",
+        "hto": "Rank up in a branch or apply through an application to earn officer ranks.",
+        "ranks": {
+            "of10": {
+                "name": "[OF-10] General of the Army",
+                "holder": "N/A",
+                "discord_id": 0
+            },
+            "of9": {"name": "[OF-9] General"},
+            "of8": {"name": "[OF-8] Lieutenant General"},
+            "of7": {"name": "[OF-7] Major General"},
+            "of6": {"name": "[OF-6] Brigadier General"},
+            "of5": {"name": "[OF-5] Colonel"},
+            "of4": {"name": "[OF-4] Lieutenant Colonel"},
+            "of3": {"name": "[OF-3] Major"},
+            "of2": {"name": "[OF-2] Captain"},
+            "of1b": {"name": "[OF-1B] 1st Lieutenant"},
+            "of1a": {"name": "[OF-1A] 2nd Lieutenant"}
+        }
+    },
+    "or": {
+        "title": "--- Other Ranks ---",
+        "description": "Other Ranks are the ranks of all non-commissioned officers and enlisted personnel in the Calderian Army. They are responsible for carrying out orders and performing various tasks.",
+        "hto": "Rank up in a branch or apply through an application to earn other ranks.",
+        "ranks": {
+            "or9b": {"name": "[OR-9B] Command Sergeant Major"},
+            "or9a": {"name": "[OR-9A] Chief Warrant Officer"},
+            "or8": {"name": "[OR-8] Warrant Officer"},
+            "or7": {"name": "[OR-7] First Sergeant"},
+            "or6": {"name": "[OR-6] Staff Sergeant"},
+            "or5": {"name": "[OR-5] Sergeant"},
+            "or4": {"name": "[OR-4] Corporal"},
+            "or3": {"name": "[OR-3] Private First Class"},
+            "or2": {"name": "[OR-2] Private Second Class"},
+            "or1": {"name": "[OR-1] Private"},
+            "or0": {"name": "[OR-0] Recruit"}
+        }
+    }
+}

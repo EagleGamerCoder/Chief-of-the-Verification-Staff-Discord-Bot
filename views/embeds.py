@@ -17,6 +17,7 @@ Components:
         create_server_rules_embed() -> discord.Embed
         create_role_output_embed(roles : list) -> discord.Embed
         create_branch_info_embed(branch_name: str, data: dict) -> discord.Embed
+        create_rank_info_embed(data: dict) -> discord.Embed
 
     Classes:
         _
@@ -76,6 +77,7 @@ def create_role_output_embed(roles : list) -> discord.Embed:
         color=discord.Color(0xffd739)
     )
 
+# Creates a Embed for the branch info command
 def create_branch_info_embed(data: dict) -> discord.Embed:
     embed = discord.Embed(
         title=data.get("title", "No title set."),
@@ -110,5 +112,44 @@ def create_branch_info_embed(data: dict) -> discord.Embed:
         value=sub_text or "None",
         inline=False
     )
+
+    return embed
+
+# Creates a Embed for the rank info command
+def create_rank_info_embed(interaction : discord.Interaction, data: dict) -> discord.Embed:
+    embed = discord.Embed(
+        title=data.get("title", "No title set."),
+        description="**--- Information ---**\n" + data.get("description", "No description set."),
+        color=discord.Color(0xffd739)
+    )
+
+    embed.add_field(
+        value=(
+            f"> **How to obtain: **\n{data.get("hto"), ""}"
+        ),
+        inline=False
+    )
+
+    string_of_ranks = ""
+
+    for key, value in data.get("ranks", {}).items(): 
+        if value.get("holder") is not None:
+            member : discord.Member = interaction.guild.fetch_member(value.get("discord_id"))
+            string_of_ranks += f"{value.get("name", "")}: {value.get("holder")} ~ {member.mention}\n"
+        else:
+            string_of_ranks += f"{value.get("name", "")}\n"
+
+    embed.add_field(
+        name="--- Ranks ---",
+        value=string_of_ranks or "None",
+        inline=False
+    )
+
+    if data.get("hto"):
+        embed.add_field(
+            name="--- How to obtain ---",
+            value=data.get("hto"),
+            inline=False
+        )
 
     return embed

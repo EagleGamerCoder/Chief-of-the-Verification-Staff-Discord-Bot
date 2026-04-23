@@ -24,6 +24,8 @@ Components:
             edit_branch_info(interaction : discord.Interaction, branch: str, field: str, value: str)
             add_sub_branch(interaction: discord.Interaction, branch: str, key: str, name: str, description: str, roblox: str)
             remove_sub_branch(interaction: discord.Interaction, branch: str, sub: str)
+            send_rank_info(interaction : discord.Interaction)
+            change_rank_holder(interaction : discord.Interaction, rank : str, rblx_username : str, discord_member : discord.Member)
 
     Classes:
         _
@@ -44,7 +46,7 @@ from views import embeds
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
 def get_branch_data():
-    data = data_loader.load_data()
+    data = data_loader.load_data("data/branch_info.json")
     
     if not data or not isinstance(data, dict):
         return None
@@ -174,6 +176,8 @@ async def setup(bot, context):
             await context.log_error(interaction, "setup_embeds", 3, e)
             return
     
+    # ------------------------- BRANCH INFO COMMANDS --------------------
+
     # /send_branch_info
     @bot.tree.command(name="send-branch-info", description="Sends the branch info")
     @app_commands.checks.has_permissions(administrator=True)
@@ -193,6 +197,8 @@ async def setup(bot, context):
                 await interaction.followup.send("Data not found.", ephemeral=True)
                 return
             
+            await interaction.channel.send("# __**Branch Information:**__")
+
             for name, b_data in data.items():
                 embed = embeds.create_branch_info_embed(b_data)
                 await interaction.channel.send(embed=embed)
@@ -209,7 +215,7 @@ async def setup(bot, context):
         await interaction.response.defer(ephemeral=True)
         await interaction.followup.send("Updating branch info...", ephemeral=True)
 
-        success = data_loader.update_branch_field(branch, field, value)
+        success = data_loader.BRANCH_update_branch_field(branch, field, value)
 
         if not success:
             await interaction.response.send_message("Branch not found.", ephemeral=True)
@@ -230,7 +236,7 @@ async def setup(bot, context):
 
         interaction.response.defer(ephemeral=True)
 
-        success = data_loader.add_sub_branch(branch, key, name, description, roblox)
+        success = data_loader.BRANCH_add_sub_branch(branch, key, name, description, roblox)
 
         if not success:
             await interaction.followup.send("Invalid Branch.", ephemeral=True)
@@ -249,7 +255,7 @@ async def setup(bot, context):
 
         interaction.response.defer(ephemeral=True)
 
-        success = data_loader.remove_sub_branch(branch, sub)
+        success = data_loader.BRANCH_remove_sub_branch(branch, sub)
 
         if not success:
             await interaction.followup.send("Invalid Branch.", ephemeral=True)
@@ -259,6 +265,66 @@ async def setup(bot, context):
             f"Removed `{sub}` from `{branch}`",
             ephemeral=True
         )
+    
+    # ------------------------- RANK INFO COMMANDS -------------------------
+
+    #/send_rank_info
+    @bot.tree.command(name="send-rank-info", description="Sends the rank info")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def send_rank_info(interaction : discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send("Sending rank info...", ephemeral=True)
+
+        try:
+
+            data = data_loader.load_data("data/rank_info.json")
+
+            async for msg in interaction.channel.history(limit=100):
+                if msg.author.id == bot.user.id:
+                    await msg.delete()
+
+            if not data:
+                await interaction.followup.send("Data not found.", ephemeral=True)
+                return
+            
+            await interaction.channel.send("# __**Rank Information:**__")
+
+            for name, r_data in data.items():
+                embed = embeds.create_rank_info_embed(interaction, r_data)
+                await interaction.channel.send(embed=embed)
+            
+            await interaction.followup.send("Rank info sent.", ephemeral=True)
+        
+        except Exception as e:
+            await context.log_error(interaction, "send_rank_info", 1, e)
+
+    #/change_rank_holder
+    @bot.tree.command(name="change-rank-holder", description="Changes the holder of a rank.")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def change_rank_holder(interaction : discord.Interaction, rank : str, rblx_username : str, discord_member : discord.Member):
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send("Updating rank holder...", ephemeral=True)
+
+        try:
+
+            rank_list = data_loader.load_data("data/rank_list.json")
+            if rank not in rank_list:
+                await interaction.followup.send("Rank not found.", ephemeral=True)
+                return
+            
+            rank_name = rank_list[rank]
+
+            success = data_loader.RANK_change_rank_holder(rank_name, rblx_username, discord_member.id)
+            
+            if not success:
+                await interaction.followup.send("Invalid input.", ephemeral=True)
+                return
+
+            await interaction.followup.send(f"Updated {rblx_username} to {rank_name}, Run `/send_rank_info`", ephemeral=True)
+
+        except Exception as e:
+            await context.log_error(interaction, "change_rank_holder", 1, e)
+
     # ------------------------- LIMITED COMMANDS -------------------------
 
     # Commands here
