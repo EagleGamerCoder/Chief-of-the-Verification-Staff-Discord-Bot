@@ -22,7 +22,7 @@
     },
     "dod_hq": {
         "title": "--- Department of Defense Headquarters ---",
-        "description": "The DOD HQ is responsible for the overall management of the Calderian Military inclusing the Army, Airforce, and Navy.",
+        "description": "The DOD HQ is responsible for the overall management of the Calderian Military including the Army, Airforce, and Navy.",
         "ranks": {
             "cds": {
                 "name": "[CDS] Chief of Defense Staff",
