@@ -124,9 +124,8 @@ def create_rank_info_embed(interaction : discord.Interaction, data: dict) -> dis
     )
 
     embed.add_field(
-        value=(
-            f"> **How to obtain: **\n{data.get("hto"), ""}"
-        ),
+        name="--- How to obtain ---",
+        value=f">{data.get("hto"), ""}",
         inline=False
     )
 
