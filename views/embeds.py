@@ -133,8 +133,11 @@ async def create_rank_info_embed(interaction : discord.Interaction, data: dict) 
 
     for key, value in data.get("ranks", {}).items(): 
         if value.get("holder") is not None:
-            member : discord.Member = await interaction.guild.fetch_member(value.get("discord_id"))
-            string_of_ranks += f"{value.get("name", "")}: {value.get("holder")} ~ {member.mention}\n"
+            if value.get("holder") == "N/A":
+                string_of_ranks += f"{value.get("name", "")}: {value.get("holder")}\n"
+            else:
+                member : discord.Member = await interaction.guild.fetch_member(value.get("discord_id"))
+                string_of_ranks += f"{value.get("name", "")}: {value.get("holder")} ~ {member.mention}\n"
         else:
             string_of_ranks += f"{value.get("name", "")}\n"
 
