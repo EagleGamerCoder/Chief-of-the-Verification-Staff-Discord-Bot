@@ -290,7 +290,7 @@ async def setup(bot, context):
             await interaction.channel.send("# __**Rank Information:**__")
 
             for name, r_data in data.items():
-                embed = embeds.create_rank_info_embed(interaction, r_data)
+                embed = await embeds.create_rank_info_embed(interaction, r_data)
                 await interaction.channel.send(embed=embed)
             
             await interaction.followup.send("Rank info sent.", ephemeral=True)
