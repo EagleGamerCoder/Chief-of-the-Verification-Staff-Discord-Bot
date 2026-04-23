@@ -123,11 +123,12 @@ async def create_rank_info_embed(interaction : discord.Interaction, data: dict) 
         color=discord.Color(0xffd739)
     )
 
-    embed.add_field(
-        name="--- How to obtain ---",
-        value=f">{data.get("hto"), ""}",
-        inline=False
-    )
+    if data.get("hto") is not None:
+        embed.add_field(
+            name="--- How to obtain ---",
+            value=f"> {data.get("hto"), ""}",
+            inline=False
+        )
 
     string_of_ranks = ""
 
