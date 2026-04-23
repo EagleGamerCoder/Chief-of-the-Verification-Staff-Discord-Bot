@@ -119,14 +119,14 @@ def create_branch_info_embed(data: dict) -> discord.Embed:
 async def create_rank_info_embed(interaction : discord.Interaction, data: dict) -> discord.Embed:
     embed = discord.Embed(
         title=data.get("title", "No title set."),
-        description="**--- Information ---**\n" + data.get("description", "No description set."),
+        description="**--- Information ---**\n" + data.get("description", "No description set.") + "\n",
         color=discord.Color(0xffd739)
     )
 
     if data.get("hto") is not None:
         embed.add_field(
             name="--- How to obtain ---",
-            value=f"> {data.get("hto"), ""}",
+            value=f"> {data.get("hto")} \n",
             inline=False
         )
 
@@ -147,12 +147,5 @@ async def create_rank_info_embed(interaction : discord.Interaction, data: dict) 
         value=string_of_ranks or "None",
         inline=False
     )
-
-    if data.get("hto"):
-        embed.add_field(
-            name="--- How to obtain ---",
-            value=data.get("hto"),
-            inline=False
-        )
 
     return embed
