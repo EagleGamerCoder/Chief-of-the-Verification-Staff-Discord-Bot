@@ -189,7 +189,7 @@ async def setup(bot, context):
         if not config:
             await interaction.followup.send("Guild not configured, run `/setup_config` first.", ephemeral=True)
 
-        channel_id, role_id, group_id, sub_one, sub_two, sub_three = config.group_id
+        channel_id, role_id, group_id, sub_one, sub_two, sub_three = config
 
         group_info = roblox_api.get_roblox_group_info(group_id)
 
