@@ -185,15 +185,19 @@ async def setup(bot, context):
         await interaction.response.defer(ephemeral=True)
         await interaction.followup.send("Creating all roles...", ephemeral=True)
 
-        config = context.db.get_guild_config(interaction.guild.id)
-        if not config:
-            await interaction.followup.send("Guild not configured, run `/setup_config` first.", ephemeral=True)
+        try:
+            config = context.db.get_guild_config(interaction.guild.id)
+            if not config:
+                await interaction.followup.send("Guild not configured, run `/setup_config` first.", ephemeral=True)
 
-        channel_id, role_id, group_id, sub_one, sub_two, sub_three = config
+            channel_id, role_id, group_id, sub_one, sub_two, sub_three = config
 
-        group_info = roblox_api.get_roblox_group_info(group_id)
+            group_info = await roblox_api.get_roblox_group_info(group_id)
 
-        print(group_info)
+            print(group_info)
+        
+        except Exception as e:
+            await context.log_error(interaction, "create_all_roles", 1, e)
 
     # ------------------------- BRANCH INFO COMMANDS --------------------
 
