@@ -2,13 +2,14 @@
 
 Module: roblox_api.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.2
+Most recent update version: V 0.6.4
 Description:
     Handles all connections to the roblox api using aiohttp.
 
 Usage:
     discord_roblox_role_sync.py
     verify_view.py
+    commands.py
 
 Components:
     Functions:

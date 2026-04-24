@@ -2,7 +2,7 @@
 
 Module: commands.py
 Author: EagleGamerCoder
-Most recent update version: V 0.6.3
+Most recent update version: V 0.6.4
 Description:
     Controls all commmands that are avaliable by the bot.
 
@@ -20,6 +20,7 @@ Components:
             on_app_commmand_error(interaction: discord.Interaction, error: app_commands.AppCommandError)
             setup_config(interaction : discord.Interaction, role : discord.Role,  group_id : int, sub_group_id_one : int, sub_group_id_two : int, sub_group_id_three : int)
             setup_embeds(interaction : discord.Interaction, server_rules_channel_id : str, server_rules_message_id : str | None)
+            create_all_roles(interaction : discord.Interaction)
             send_branch_info(interaction : discord.Interaction)
             edit_branch_info(interaction : discord.Interaction, branch: str, field: str, value: str)
             add_sub_branch(interaction: discord.Interaction, branch: str, key: str, name: str, description: str, roblox: str)
@@ -42,6 +43,7 @@ from discord import app_commands
 # Modules
 from utils import data_loader
 from views import embeds
+from services import roblox_api
 
 # ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
 
@@ -176,6 +178,23 @@ async def setup(bot, context):
             await context.log_error(interaction, "setup_embeds", 3, e)
             return
     
+    #/create_all_roles
+    @bot.tree.command(name="create-all-roles", description="Creates all roles for the configured info.")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def create_all_roles(interaction : discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send("Creating all roles...", ephemeral=True)
+
+        config = context.db.get_guild_config(interaction.guild.id)
+        if not config:
+            await interaction.followup.send("Guild not configured, run `/setup_config` first.", ephemeral=True)
+
+        roblox_group_id = config.group_id
+
+        group_info = roblox_api.get_roblox_group_info(roblox_group_id)
+
+        print(group_info)
+
     # ------------------------- BRANCH INFO COMMANDS --------------------
 
     # /send_branch_info
