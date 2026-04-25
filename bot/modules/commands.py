@@ -98,6 +98,7 @@ async def setup(bot, context):
     @bot.tree.error
     async def on_app_commmand_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
         await context.log_error(interaction, "on_app_commmand_error", 1, error)
+        return
 
     # ------------------------- ADMIN COMMANDS -------------------------
 
@@ -124,6 +125,7 @@ async def setup(bot, context):
 
         except Exception as e:
             await context.log_error(interaction, "setup_config", 1, e)
+            return
     
 
 
@@ -185,6 +187,9 @@ async def setup(bot, context):
         await interaction.response.defer(ephemeral=True)
         await interaction.followup.send("Creating all roles...", ephemeral=True)
 
+        def remove_excess_chars(string : str) -> str:
+            return "".join(ch for ch in string if ch not in "- ^")
+
         try:
             config = context.db.get_guild_config(interaction.guild.id)
             if not config:
@@ -194,10 +199,19 @@ async def setup(bot, context):
 
             roles = await roblox_api.get_roblox_group_roles(group_id)
             for role in roles:
-                print(role)
-        
+                role_name = role['name']
+                role_name = remove_excess_chars(role_name)
+                new_role = await interaction.guild.create_role(
+                    name=role_name,
+                    color=discord.colour.default(),
+                )
+                interaction.followup.send(f"'{new_role.name}' role created successfully.")
+
+            interaction.followup.send(f"All roles created successfully.")
+
         except Exception as e:
             await context.log_error(interaction, "create_all_roles", 1, e)
+            return
 
     # ------------------------- BRANCH INFO COMMANDS --------------------
 
@@ -230,6 +244,7 @@ async def setup(bot, context):
         
         except Exception as e:
             await context.log_error(interaction, "send_branch_info", 1, e)
+            return
 
     # /edit_branch_info
     @bot.tree.command(name="edit-branch-info", description="Edits a specified branches info.")
@@ -320,6 +335,7 @@ async def setup(bot, context):
         
         except Exception as e:
             await context.log_error(interaction, "send_rank_info", 1, e)
+            return
 
     #/change_rank_holder
     @bot.tree.command(name="change-rank-holder", description="Changes the holder of a rank.")
@@ -347,6 +363,7 @@ async def setup(bot, context):
 
         except Exception as e:
             await context.log_error(interaction, "change_rank_holder", 1, e)
+            return
 
     # ------------------------- LIMITED COMMANDS -------------------------
 
