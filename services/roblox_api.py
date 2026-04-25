@@ -16,7 +16,8 @@ Components:
         get_roblox_id(rblx_username : str) -> int | None
         get_roblox_player_data(rblx_user_id : int) -> int | any
         get_roblox_player_group_data(rblx_user_id : int, rblx_group_id : int) -> int | any
-        get_roblox_group_info(rblx_group_id : int) -> any
+        get_roblox_group_info(rblx_group_id : int) -> Optional[dict[str, Any]]
+        get_roblox_group_roles(rblx_group_id: int)
 
     Classes:
         _
@@ -116,3 +117,19 @@ async def get_roblox_group_info(rblx_group_id: int) -> Optional[dict[str, Any]]:
         return None
 
     return data
+
+async def get_roblox_group_roles(rblx_group_id: int):
+    await http_services.ensure_http()
+    session: aiohttp.ClientSession = http_services.http_session
+
+    try:
+        async with session.get(
+            f"https://groups.roblox.com/v1/groups/{rblx_group_id}/roles",
+            timeout=aiohttp.ClientTimeout(total=TIME_OUT)
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+        return None
+
+    return data.get("roles", [])

@@ -192,9 +192,9 @@ async def setup(bot, context):
 
             channel_id, role_id, group_id, sub_one, sub_two, sub_three = config
 
-            group_info = await roblox_api.get_roblox_group_info(group_id)
-
-            print(group_info)
+            roles = roblox_api.get_roblox_group_roles(group_id)
+            for role in roles:
+                print(role)
         
         except Exception as e:
             await context.log_error(interaction, "create_all_roles", 1, e)
