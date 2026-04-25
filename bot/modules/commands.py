@@ -203,7 +203,6 @@ async def setup(bot, context):
                 role_name = remove_excess_chars(role_name)
                 new_role = await interaction.guild.create_role(
                     name=role_name,
-                    color=discord.colour.default(),
                 )
                 interaction.followup.send(f"'{new_role.name}' role created successfully.")
 
