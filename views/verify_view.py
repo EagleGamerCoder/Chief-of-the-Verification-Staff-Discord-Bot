@@ -127,10 +127,9 @@ async def ensure_role_sync(interaction, roblox_id, group_id, sub_one, sub_two, s
             db.delete_pending(interaction.user.id)
             db.save_verify(interaction.user.id, roblox_id)  
             
-            if role is not None:
-                roles_list = result[2] + [role]
-            else:
-                roles_list = result[2]
+            base_roles = result[2] or []
+
+            roles_list = base_roles + ([role] if role else [])
 
             await output_roles(result[0], result[1], roles_list)
 
