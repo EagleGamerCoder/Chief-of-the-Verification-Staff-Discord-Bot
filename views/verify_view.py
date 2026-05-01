@@ -84,7 +84,7 @@ def get_guild_config(guild_id : int) -> dict | None:
 
 
 # Gives a resulting output to the user
-async def output_roles(member, interaction, roles: list):
+async def output_roles(member, interaction : discord.Interaction, roles: list):
     new_roles = []
 
     for role in roles:
@@ -93,7 +93,9 @@ async def output_roles(member, interaction, roles: list):
         elif role is not None:
             new_roles.append(str(role))
 
-    await embeds.create_role_output_embed(new_roles)
+    outputEmbed = embeds.create_role_output_embed(new_roles)
+
+    interaction.followup.send(outputEmbed, ephemeral=True)
 
     try:
         await member.send(
