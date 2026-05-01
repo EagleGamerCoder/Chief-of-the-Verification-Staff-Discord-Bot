@@ -2,7 +2,7 @@
 
 Module: embeds.py
 Author: EagleGamerCoder
-Most recent update version: V 0.6.3
+Most recent update version: V 0.6.5
 Description:
     Creates and returns all embeds used by the bot.
 
@@ -126,7 +126,7 @@ async def create_rank_info_embed(interaction : discord.Interaction, data: dict) 
     if data.get("hto") is not None:
         embed.add_field(
             name="--- How to obtain ---",
-            value=f"> {data.get("hto")} \n",
+            value=f"> {data.get('hto')} \n",
             inline=False
         )
 
