@@ -88,7 +88,12 @@ async def set_prefix_nickname(member, role_name: str):
         try:
             id = db.get_roblox_id(member.id)
             if id is not None:
-                rblx_username = await roblox_api.get_roblox_player_data(id)["name"]
+                player_data = await roblox_api.get_roblox_player_data(id)
+
+                if isinstance(player_data, dict):
+                    rblx_username = player_data.get("name", "Unknown")
+                else:
+                    rblx_username = "Unknown"
             else:
                 rblx_username = "Unknown"
 
@@ -117,6 +122,10 @@ async def get_roblox_multi_group_role(member : discord.Member, interaction : dis
         # Get main group role safely
         group_data = await roblox_api.get_roblox_player_group_data(roblox_id, group_id)
         group_role = group_data.get("role") if isinstance(group_data, dict) else None
+
+        if not isinstance(group_role, dict):
+            return None, None
+
         subgroup_name = None
 
     except Exception as e:
@@ -225,7 +234,11 @@ async def sync_discord_and_roblox_roles(member: discord.Member, interaction : di
 
     group_role, sub_group_name = await get_roblox_multi_group_role(member, interaction, group_id, sub_one, sub_two, sub_three)
 
-    if group_role or group_role != 0:
+    if group_role is not None:
+        if not isinstance(group_role, dict):
+            await log_error(interaction, "sync_discord_roles", 3, f"Invalid group_role: {group_role}")
+            return
+
         role_name = group_role.get("name", "Unknown")
         clean_name = normalize(role_name)
 
@@ -244,7 +257,7 @@ async def sync_discord_and_roblox_roles(member: discord.Member, interaction : di
             )
 
         if not role:
-            await log_error(interaction, "sync_discord_roles", 3, f"The {role_name} discord role does not exist.")
+            await log_error(interaction, "sync_discord_roles", 4, f"The {role_name} discord role does not exist.")
             return
 
         # Resolve category role object (may be None if not configured)
@@ -256,7 +269,7 @@ async def sync_discord_and_roblox_roles(member: discord.Member, interaction : di
             try:
                 category_role = discord.utils.get(interaction.guild.roles, name=new_category_name)
             except Exception as e:
-                await log_error(interaction, "sync_discord_roles", 4, f"The {new_category_name} discord role does not exist. Error Msg: {e}")
+                await log_error(interaction, "sync_discord_roles", 5, f"The {new_category_name} discord role does not exist. Error Msg: {e}")
                 return
 
         # ----- ROLE ORGANISATION (Start)
@@ -326,13 +339,13 @@ async def sync_discord_and_roblox_roles(member: discord.Member, interaction : di
         try:
             await set_prefix_nickname(member, role_name)
         except Exception as e:
-            log_error(interaction, "sync_discord_roles", 11, f"Failed to set nickname for {member.id}. Error Msg: {e}")
+            log_error(interaction, "sync_discord_roles", 6, f"Failed to set nickname for {member.id}. Error Msg: {e}")
 
         return member, interaction, [role, category_role]
 
 
     # User has no group role -> they are a CIV
-    else:
+    elif not isinstance(group_role, dict):
         # Remove all non-exempt roles 
         default_role = interaction.guild.default_role
         roles_to_strip = [
@@ -347,21 +360,25 @@ async def sync_discord_and_roblox_roles(member: discord.Member, interaction : di
             try:
                 await member.remove_roles(*roles_to_strip, reason="User not in Roblox group")
             except discord.HTTPException as e:
-                await log_error(interaction, "sync_discord_roles", 12, f"Failed to strip roles for {member.id}. Error Msg: {e}")
+                await log_error(interaction, "sync_discord_roles", 7, f"Failed to strip roles for {member.id}. Error Msg: {e}")
 
         civilian_role = discord.utils.get(interaction.guild.roles, name="[CIV] Civilian")
         if civilian_role and civilian_role not in member.roles:
             try:
                 await member.add_roles(civilian_role, reason="Assign civilian role")
             except discord.Forbidden:
-                await log_error(interaction, "sync_discord_roles", 13, f"Permission denied when adding civilian role to {member.id}")
+                await log_error(interaction, "sync_discord_roles", 8, f"Permission denied when adding civilian role to {member.id}")
             except discord.HTTPException as e:
-                await log_error(interaction, "sync_discord_roles", 14, f"Failed to add civilian role to {member.id}. Error Msg: {e}")
+                await log_error(interaction, "sync_discord_roles", 9, f"Failed to add civilian role to {member.id}. Error Msg: {e}")
         
         # Nickname update
         try:
             await set_prefix_nickname(member, "[CIV] Civilian")
         except Exception as e:
-            log_error(interaction, "sync_discord_roles", 12, f"Failed to set nickname for {member.id}. Error Msg: {e}")
+            log_error(interaction, "sync_discord_roles", 10, f"Failed to set nickname for {member.id}. Error Msg: {e}")
 
         return member, interaction, [civilian_role]
+    
+    else:
+        log_error(interaction, "sync_discord_roles", 11, f"Failed to check group_role instance -> {group_role}")
+        return 
