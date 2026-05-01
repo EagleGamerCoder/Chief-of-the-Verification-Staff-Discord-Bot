@@ -141,7 +141,7 @@ async def ensure_role_sync(interaction, roblox_id, group_id, sub_one, sub_two, s
             return
         
     except Exception as e:
-        await log_error(interaction, "CompleteVerificationButton", 3, e)
+        await log_error(interaction, "ensure_role_sync", 1, e)
 
 # ------------------------------------------------------------ CLASSES ------------------------------------------------------------
 
@@ -294,7 +294,7 @@ class CompleteVerificationButton(discord.ui.Button):
             )
 
         except Exception as e:
-            await log_error(interaction, "CompleteVerificationButton", 4, e)
+            await log_error(interaction, "CompleteVerificationButton", 3, e)
         
         
 

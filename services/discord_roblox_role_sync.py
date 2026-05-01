@@ -109,38 +109,53 @@ async def set_prefix_nickname(member, role_name: str):
 
 # returns the group role and sub group name for the specified discord member and guild info
 async def get_roblox_multi_group_role(member : discord.Member, interaction : discord.Interaction, group_id : int, sub_one : int, sub_two : int, sub_three : int):
-
     try:
         roblox_id = db.get_roblox_id(member.id)
-        group_role = await roblox_api.get_roblox_player_group_data(roblox_id, group_id)
-        if group_role != None:
-            group_role = group_role['role']
+        if not roblox_id:
+            return None, None
+
+        # Get main group role safely
+        group_data = await roblox_api.get_roblox_player_group_data(roblox_id, group_id)
+        group_role = group_data.get("role") if isinstance(group_data, dict) else None
         subgroup_name = None
+
     except Exception as e:
         await log_error(interaction, "get_roblox_multi_group_role", 1, e)
         return None, None
 
-    # Collect subgroup ids that are non-zero in order of priority
+    # Collect valid subgroup IDs
     sub_ids = [sid for sid in (sub_one, sub_two, sub_three) if sid]
-    if not sub_ids:
+    if not sub_ids or not group_role:
         return group_role, None
 
-    fetch_tasks = [roblox_api.get_roblox_group_info(sid).get("name") for sid in sub_ids]
-    names = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+    try:
+        # Fetch subgroup info concurrently
+        fetch_tasks = [roblox_api.get_roblox_group_info(sid) for sid in sub_ids]
+        results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
 
-    # Normalize and compare; only re-resolve role if a match is found
-    for sid, name in zip(sub_ids, names):
-        if isinstance(name, Exception) or name is None:
-            continue
-        normalized = remove_leading_bracket(name)
-        if group_role and normalized == group_role.get("name"):
-            try:
-                group_role = await roblox_api.get_roblox_player_group_data(member.id, sid)
-                subgroup_name = normalized
-            except Exception as e:
-                await log_error(interaction, "get_roblox_multi_group_role", 2, f"Error fetching subgroup role for {sid}: {e}")
-            break
-    
+        for sid, result in zip(sub_ids, results):
+            if isinstance(result, Exception) or not isinstance(result, dict):
+                continue
+
+            name = result.get("name")
+            if not name:
+                continue
+
+            normalized_name = remove_leading_bracket(name)
+
+            # Compare with user's current role name
+            if normalized_name == group_role.get("name"):
+                try:
+                    subgroup_data = await roblox_api.get_roblox_player_group_data(roblox_id, sid)
+                    group_role = subgroup_data.get("role") if isinstance(subgroup_data, dict) else None
+                    subgroup_name = normalized_name
+                except Exception as e:
+                    await log_error(interaction, "get_roblox_multi_group_role", 2, f"Error fetching subgroup role for {sid}: {e}")
+                break
+
+    except Exception as e:
+        await log_error(interaction, "get_roblox_multi_group_role", 3, e)
+
     return group_role, subgroup_name
 
 
