@@ -95,7 +95,7 @@ async def output_roles(member, interaction : discord.Interaction, roles: list):
 
     outputEmbed = embeds.create_role_output_embed(new_roles)
 
-    await interaction.followup.send(outputEmbed, ephemeral=True)
+    await interaction.followup.send(embed=outputEmbed, ephemeral=True)
 
     try:
         await member.send(
