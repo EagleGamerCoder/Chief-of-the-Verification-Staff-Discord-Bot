@@ -2,7 +2,7 @@
 
 Module: discord_roblox_role_sync.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.2
+Most recent update version: V 0.6.5
 Description:
     Manages adding roblox group roles and nicknames to 
     discord.
@@ -88,7 +88,7 @@ async def set_prefix_nickname(member, role_name: str):
         try:
             id = db.get_roblox_id(member.id)
             if id is not None:
-                rblx_username = await roblox_api.get_roblox_player_data(id)
+                rblx_username = await roblox_api.get_roblox_player_data(id)["name"]
             else:
                 rblx_username = "Unknown"
 
@@ -343,4 +343,10 @@ async def sync_discord_and_roblox_roles(member: discord.Member, interaction : di
             except discord.HTTPException as e:
                 await log_error(interaction, "sync_discord_roles", 14, f"Failed to add civilian role to {member.id}. Error Msg: {e}")
         
+        # Nickname update
+        try:
+            await set_prefix_nickname(member, "[CIV] Civilian")
+        except Exception as e:
+            log_error(interaction, "sync_discord_roles", 12, f"Failed to set nickname for {member.id}. Error Msg: {e}")
+
         return member, interaction, [civilian_role]

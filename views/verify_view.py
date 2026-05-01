@@ -2,7 +2,7 @@
 
 Module: verify_view.py
 Author: EagleGamerCoder
-Most recent update version: V 0.5.2
+Most recent update version: V 0.6.5
 Description:
     Handles the Discord verification UI system, including
     persistent buttons and a modal used to collect Roblox
@@ -279,8 +279,7 @@ class CompleteVerificationButton(discord.ui.Button):
                 return
             
             if interaction.user.id == 1434931977571668113:
-                await interaction.followup.send("❌ Eagle, you're such a silly goose, I ain't messing up your roles again...", ephemeral=True)
-                return
+                await interaction.followup.send("\(0.0)/ Eagle, I'll give it go, no promises...", ephemeral=True)
 
             await asyncio.sleep(0.5)
             
