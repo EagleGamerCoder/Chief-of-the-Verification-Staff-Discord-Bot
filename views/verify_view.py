@@ -132,7 +132,7 @@ async def ensure_role_sync(interaction, roblox_id, group_id, sub_one, sub_two, s
             else:
                 roles_list = result[2]
 
-            output_roles(result[0], result[1], roles_list)
+            await output_roles(result[0], result[1], roles_list)
 
             await interaction.followup.send("✅ Verified!", ephemeral=True)
 
