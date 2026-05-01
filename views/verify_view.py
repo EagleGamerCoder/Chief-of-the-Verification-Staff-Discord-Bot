@@ -279,7 +279,7 @@ class CompleteVerificationButton(discord.ui.Button):
                 return
             
             if interaction.user.id == 1434931977571668113:
-                await interaction.followup.send("\(0.0)/ Eagle, I'll give it go, no promises...", ephemeral=True)
+                await interaction.followup.send("(-.-) Eagle, I'll give it go, no promises...", ephemeral=True)
 
             await asyncio.sleep(0.5)
             
