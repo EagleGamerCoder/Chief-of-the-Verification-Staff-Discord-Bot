@@ -84,12 +84,14 @@ def get_guild_config(guild_id : int) -> dict | None:
 
 
 # Gives a resulting output to the user
-async def output_roles(member, interaction, roles : list):
+async def output_roles(member, interaction, roles: list):
     new_roles = []
+
     for role in roles:
-        if role is type(discord.Role):
-            role = role.name
-        new_roles.append(role)
+        if isinstance(role, discord.Role):
+            new_roles.append(role.name)
+        elif role is not None:
+            new_roles.append(str(role))
 
     await embeds.create_role_output_embed(new_roles)
 
@@ -99,7 +101,6 @@ async def output_roles(member, interaction, roles : list):
         )
     except discord.Forbidden:
         pass
-
 
 
 # Provides the user with the output information, adds the  verified role and removes temporary database information

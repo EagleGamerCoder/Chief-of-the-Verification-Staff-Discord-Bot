@@ -100,7 +100,7 @@ async def set_prefix_nickname(member, role_name: str):
             await member.edit(nick=f"{prefix} {rblx_username}")
 
         except discord.Forbidden:
-            await log_error(None, "set_prefix_nickname", 1, "Missing Permissions")
+            await log_error(None, "set_prefix_nickname", 1, "Missing Permissions - Possible Eagle infiltration")
             return
         except discord.HTTPException as e:
             await log_error(None, "set_prefix_nickname", 2, e)
@@ -300,7 +300,7 @@ async def sync_discord_and_roblox_roles(member: discord.Member, interaction : di
 
     # Resolve category role object (may be None if not configured)
 
-    new_category_name = get_category_role_name(interaction, clean_name, sub_group_name)
+    new_category_name = await get_category_role_name(interaction, clean_name, sub_group_name)
 
     category_role = None
     if new_category_name:
